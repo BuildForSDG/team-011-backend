@@ -2,10 +2,7 @@
   "name": "js-starter",
   "version": "0.0.1",
   "description": "A boilerplate for starting js code",
-  "keywords": [
-    "js-starter",
-    "boilerplate"
-  ],
+  "keywords": ["js-starter", "boilerplate"],
   "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,10 +10,13 @@
     "test": "__tests__"
   },
   "scripts": {
+    "prebuild": "rimraf dist .cache __tests__/coverage",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cover": "jest --coverage",
     "lint": "eslint \"src/**/*.js\"",
+    "build": "parcel build src/index.html --no-source-maps",
+    "watch": "parcel watch src/index.html",
     "start": "parcel ./src/index.html"
   },
   "author": {
@@ -43,7 +43,5 @@
     "jest": "^25.4.0",
     "parcel-bundler": "^1.12.4"
   },
-  "browserslist": [
-    "last 1 Chrome versions"
-  ]
+  "browserslist": ["last 1 Chrome versions"]
 }
