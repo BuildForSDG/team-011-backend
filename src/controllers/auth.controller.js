@@ -57,15 +57,13 @@ exports.login = async (req, res) => {
     if (!user) return res.status(401).json({ msg: `The email address ${email} is not associated with any account. Double-check your email address and try again.` });
 
     // validate password
-    if (!user.comparePassword(password)) return res.status(401).json({ message: 'Invalid email or password' });
+    if (!user.comparePword(password)) return res.status(401).json({ message: 'Invalid email or password' });
 
     // Make sure the user has been verified
     if (!user.isVerified) return res.status(401).json({ type: 'not-verified', message: 'Your account has not been verified.' });
 
-    // Login successful, write token, and send back user
-    return res
-      .status(200)
-      .json({ token: user.generateJWT(), user, role: user.role });
+    // Login successful, write token, and send back usergenerateJWT
+    return res.status(200).json({ token: user.generateJWT(), user, role: user.role });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

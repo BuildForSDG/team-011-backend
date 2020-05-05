@@ -92,9 +92,7 @@ UserSchema.pre('save', async (next) => {
   });
 });
 
-UserSchema.methods.comparePassword = function comparePassword(password) {
-  return bcrypt.compareSync(password, this.password);
-};
+UserSchema.methods.comparePword = async (password) => bcrypt.compareSync(password, this.password);
 
 UserSchema.methods.generateJWT = async () => {
   const today = new Date();
@@ -102,7 +100,8 @@ UserSchema.methods.generateJWT = async () => {
   expirationDate.setDate(today.getDate() + 60);
 
   const payload = {
-    id: this.userId,
+    // eslint-disable-next-line no-underscore-dangle
+    userId: this._id,
     email: this.email,
     username: this.username,
     firstName: this.firstName,
@@ -121,7 +120,8 @@ UserSchema.methods.generatePasswordReset = async () => {
 
 UserSchema.methods.generateVerificationToken = async () => {
   const payload = {
-    userId: this.userId,
+    // eslint-disable-next-line no-underscore-dangle
+    userId: this._id,
     token: crypto.randomBytes(20).toString('hex')
   };
 
