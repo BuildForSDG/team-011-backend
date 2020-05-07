@@ -8,7 +8,7 @@ The application is an innovative solution for connecting subsistent farmers to l
 The solution is necessary because many people who  wish to farm do not have information about available lands or the prices. Also, the people who have lands but do not know people who need the lands.
 
 ## Usage
-How would someone use what you have built, include URLs to the deployed app, service e.t.c when you have it setup
+Farmers and Landowners login to the application to carry out necessary tasks.
 
 
 ## Setup
