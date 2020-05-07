@@ -1,35 +1,23 @@
-barebones setup for JavaScript / Node projects replace this with a one-liner phrase describing this project or app
-
-[![Codacy Badge](https://img.shields.io/badge/Code%20Quality-D-red)](https://img.shields.io/badge/Code%20Quality-D-red)
-
 
 ## About
+The application is an innovative solution for connecting subsistent farmers to land owners. It offers the farmers the opportunity to rent the lands at affordable prices.
 
-What is this project about. Ok to enrich here or the section above it with an image. 
-
-Once this repo has been setup on Codacy by the TTL, replace the above badge with the actual one from the Codacy dashboard, and add the code coverage badge as well. This is mandatory
-
-This is a simple JavaScript starter repo template for setting up your project. The setup contains
-
-- Jest: For runnung tests. We strongly recommend that JavaScript projects use Jest
-
-- Eslint & Prettier: For formatting code to match ESlint AirBnB coding standard. You might need to install the ESlint and Prettier plugins for your code editor to make the most of these utilities
 
 ## Why
 
-Talk about what problem this solves, what SDG(s) and SGD targets it addresses and why these are imoirtant
+The solution is necessary because many people who  wish to farm do not have information about available lands or the prices. Also, the people who have lands but do not know people who need the lands.
 
 ## Usage
- How would someone use what you have built, include URLs to the deployed app, service e.t.c when you have it setup
+How would someone use what you have built, include URLs to the deployed app, service e.t.c when you have it setup
 
 
 ## Setup
 
-Install `npm` or `yarn` if you dont have any of them already installed. We recommend Yarn though.
+Install `yarn install`
 
-After clonning the repo to your local machine and moving into the cloned folder, Run `yarn install` to get started by installing dependencies. 
+After clonning the repo `git clone https://github.com/BuildForSDG/team-011-backend.git` , cd team-011-backend to your local machine and moving into the cloned folder, Run `yarn install` to get started by installing dependencies.
 
-`src/index.js` is the entry to the project and source code should go into the `src` folder.
+`src/server.js` is the entry to the project and source code should go into the `src` folder.
 
 All tests should be written in the `__tests__' folder. There's a sample in there.
 
@@ -37,7 +25,7 @@ This starter uses [Parcel](https://parceljs.org/getting_started.html) as the bun
 
 #### Hints
 
-- Run `npm install` or `yarn install` to get started. We'll assume you are using Yarn.
+- Run `yarn install` to get started. 
 - Install additional dependencies: `yarn add <dependency-name> [-D]`
 - Run tests: `yarn test`
 - Run tests with test coverage info: `yarn test:cover`
