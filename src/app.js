@@ -24,10 +24,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // form-urlencoded
 
-// view engine setup
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'jade');
-
 //= == 2 - SET UP DATABASE
 // Configure mongoose's promise to global promise
 mongoose.promise = global.Promise;
@@ -41,7 +37,6 @@ connection.on('error', () => {
 //= == 3 - INITIALIZE PASSPORT MIDDLEWARE
 app.use(passport.initialize());
 require('./middlewares/jwt')(passport);
-
 
 //= == 4 - CONFIGURE ROUTES
 // Configure Route
