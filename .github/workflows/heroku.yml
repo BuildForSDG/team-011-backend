@@ -5,10 +5,8 @@ name: Deploy
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
-  push:
-    branches: [ develop ]
   pull_request:
-    branches: [ develop ]
+    branches: [develop]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 
@@ -20,8 +18,8 @@ jobs:
       - uses: akhileshns/heroku-deploy@v3.0.4 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "farm-landlord" #Must be unique in Heroku
-          heroku_email: "fortuneochi@gmail.com"
+          heroku_app_name: 'farm-landlord' #Must be unique in Heroku
+          heroku_email: 'fortuneochi@gmail.com'
           #buildpack: "SOME BUILDPACK" #OPTIONAL
           #branch: "YOUR_BRANCH" #OPTIONAL and DEFAULT - 'HEAD' (a.k.a your current branch)
           dontuseforce: false #OPTIONAL and DEFAULT - false

@@ -11,14 +11,14 @@
   },
   "scripts": {
     "prebuild": "rimraf dist .cache __tests__/coverage",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cover": "jest --coverage",
+    "test": "jest --detectOpenHandles",
+    "test:watch": "jest --watch --detectOpenHandles",
+    "test:cover": "jest --coverage --detectOpenHandles",
     "lint": "eslint \"src/**/*.js\"",
-    "build": "parcel build src/server.js --no-source-maps",
+    "build": "parcel build src/server.js --target=node --no-source-maps",
     "watch": "parcel watch src/server.js --target=node",
     "start:dev": "nodemon src/server.js",
-    "start": "parcel ./src/server.js --target=node"
+    "start": "node dist/server.js"
   },
   "author": {
     "name": "Build For SDG",
