@@ -74,7 +74,8 @@ exports.login = async (req, res) => {
         .json({ type: 'not-verified', message: 'Your account has not been verified.' });
     }
     // Login successful, write token, and send back usergenerateJWT
-    return res.status(httpStatus.OK).json({ token: user.generateJWT(), user, role: user.role });
+    const { token, expiresIn } = user.generateJWT();
+    return res.status(httpStatus.OK).json({ token, expiresInMins: expiresIn });
   } catch (error) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }

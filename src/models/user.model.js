@@ -98,22 +98,19 @@ UserSchema.methods.comparePword = function (password) {
 
 // eslint-disable-next-line func-names
 UserSchema.methods.generateJWT = function () {
-  const today = new Date();
-  const expirationDate = new Date(today);
-  expirationDate.setDate(today.getDate() + 60);
-
   const payload = {
     // eslint-disable-next-line no-underscore-dangle
     userId: this._id,
     email: this.email,
     username: this.username,
     firstName: this.firstName,
-    lastName: this.lastName
+    lastName: this.lastName,
+    role: this.role
   };
 
-  return jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: parseInt(expirationDate.getTime() / 1000, 10)
-  });
+  const expiresIn = 60 * 60 * 24; // expires in 24 hours
+  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
+  return { token, expiresIn };
 };
 
 UserSchema.methods.generatePasswordReset = function () {

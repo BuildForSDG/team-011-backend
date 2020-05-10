@@ -13,11 +13,6 @@ jest.mock('../src/utils/index');
 beforeAll(async () => dbHelper.connect());
 
 /**
- * Clear all test data after every test.
- */
-// afterEach(async () => dbHelper.clearDatabase());
-
-/**
  * Remove and close the db and server.
  */
 afterAll(async () => {
@@ -64,6 +59,7 @@ describe('Auth Controller', () => {
 
   it(`Login: Should return ${httpStatus.OK} confirmed email`, async () => {
     const res = await request(app).post('/api/auth/login').send(userLogin).expect(httpStatus.OK);
-    expect(res.body).toBeDefined();
+    expect(res.body.token).toBeDefined();
+    expect(res.body.expiresInMins).toBeDefined();
   });
 });

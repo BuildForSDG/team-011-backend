@@ -10,8 +10,11 @@ exports.recover = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (!user) return res.status(401).json({ message: `The email address ${req.body.email} is not associated with any account. Double-check your email address and try again.` });
-
+    if (!user) {
+      return res.status(401).json({
+        message: `The email address ${req.body.email} is not associated with any account. Double-check your email address and try again.`
+      });
+    }
     // Generate and set password reset token
     user.generatePasswordReset();
 
@@ -23,7 +26,7 @@ exports.recover = async (req, res) => {
     const to = user.email;
     const link = `http://${req.headers.host}/api/auth/reset/${user.resetPasswordToken}`;
     const html = `<p>Hi ${user.username}</p>
-                    <p>Please click on the following <a href='${link}'>link</a> to reset your password.</p> 
+                    <p>Please click on the following <a href='${link}'>link</a> to reset your password.</p>
                     <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`;
 
     await sendEmail(to, { subject, html }, '');
@@ -41,9 +44,10 @@ exports.reset = async (req, res) => {
   try {
     const { token } = req.params;
 
-    const user = await User.findOne(
-      { resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } }
-    );
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
 
     if (!user) return res.status(401).json({ message: 'Password reset token is invalid or has expired.' });
 
@@ -61,9 +65,10 @@ exports.resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
 
-    const user = await User.findOne(
-      { resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } }
-    );
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
 
     if (!user) return res.status(401).json({ message: 'Password reset token is invalid or has expired.' });
 
