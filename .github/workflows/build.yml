@@ -49,7 +49,21 @@ jobs:
           yarn test:cover
           yarn build
         env:
+          # JWT
+          JWT_SECRET: THisIsMySceretKey!
+          # MONGO DB
           MONGO_URI: mongodb://localhost:27017/FarmLord
+
+          # CLOUDINARY
+          CLOUD_NAME: CLOUD_NAME
+          CLOUD_API_KEY: CLOUD_API_KEY
+          CLOUD_API_SECRET: CLOUD_API_SECRET
+
+          # MAILGUN
+          MAILGUN_API_KEY: MAILGUN_API_KEY
+          DOMAIN: domain.mailgun.org
+          FROM_EMAIL: farmtrader130@gmail.com
+          FROM_NAME: FarmLord
 
       # Deploy to Heroku
       - uses: actions/checkout@v2
