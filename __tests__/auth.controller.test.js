@@ -64,6 +64,7 @@ describe('Auth Controller', () => {
 
   it(`Login: Should return ${httpStatus.OK} confirmed email`, async () => {
     const res = await request(app).post('/api/auth/login').send(userLogin).expect(httpStatus.OK);
-    expect(res.body).toBeDefined();
+    expect(res.body.token).toBeDefined();
+    expect(res.body.expiresIn).toBeDefined();
   });
 });
