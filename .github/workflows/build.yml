@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x]
-        mongodb-version: [4.2]
+        #mongodb-version: [4.2]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -35,11 +35,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.3.0
-        with:
-          mongodb-version: ${{ matrix.mongodb-version }}
-          mongodb-replica-set: insert-replica-set-name
+      # - name: Start MongoDB
+      #   uses: supercharge/mongodb-github-action@1.3.0
+      #   with:
+      #     mongodb-version: ${{ matrix.mongodb-version }}
+      #     mongodb-replica-set: insert-replica-set-name
 
       # Runs a set of commands using the runners shell
       - name: Run node scripts
