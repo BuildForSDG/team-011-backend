@@ -2,10 +2,7 @@
   "name": "js-starter",
   "version": "0.0.1",
   "description": "A boilerplate for starting js code",
-  "keywords": [
-    "js-starter",
-    "boilerplate"
-  ],
+  "keywords": ["js-starter", "boilerplate"],
   "private": false,
   "main": "app.js",
   "types": "dist/index.d.ts",
@@ -14,9 +11,9 @@
   },
   "scripts": {
     "prebuild": "rimraf dist .cache __tests__/coverage",
-    "test": "jest -i --detectOpenHandles",
-    "test:watch": "jest --watch -i --detectOpenHandles",
-    "test:cover": "jest --coverage -i --detectOpenHandles",
+    "test": "jest --detectOpenHandles",
+    "test:watch": "jest --watch --detectOpenHandles",
+    "test:cover": "jest --coverage --detectOpenHandles",
     "lint": "eslint \"src/**/*.js\"",
     "build": "parcel build src/server.js --target=node --no-source-maps",
     "watch": "parcel watch src/server.js --target=node",
@@ -68,7 +65,5 @@
     "parcel-bundler": "^1.12.4",
     "supertest": "^4.0.2"
   },
-  "browserslist": [
-    "last 1 Chrome versions"
-  ]
+  "browserslist": ["last 1 Chrome versions"]
 }
