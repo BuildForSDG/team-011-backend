@@ -11,6 +11,7 @@ module.exports.connect = async () => {
 
   const mongooseOpts = {
     useNewUrlParser: true,
+    useCreateIndex: true,
     useUnifiedTopology: true
   };
 
