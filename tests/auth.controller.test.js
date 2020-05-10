@@ -13,11 +13,6 @@ jest.mock('../src/utils/index');
 beforeAll(async () => dbHelper.connect());
 
 /**
- * Clear all test data after every test.
- */
-// afterEach(async () => dbHelper.clearDatabase());
-
-/**
  * Remove and close the db and server.
  */
 afterAll(async () => {

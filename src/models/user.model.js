@@ -108,7 +108,7 @@ UserSchema.methods.generateJWT = function () {
     role: this.role
   };
 
-  const expiresIn = 60 * 60 * 24; // 24 hours
+  const expiresIn = 60 * 60 * 24; // expires in 24 hours
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
   return { token, expiresIn };
 };
