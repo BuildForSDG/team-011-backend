@@ -1,16 +1,15 @@
 {
-  "name": "js-starter",
+  "name": "farmlord",
   "version": "0.0.1",
-  "description": "A boilerplate for starting js code",
-  "keywords": ["js-starter", "boilerplate"],
+  "description": "An application that connect Farmer to Landowners",
+  "keywords": ["node", "jest"],
   "private": false,
-  "main": "app.js",
-  "types": "dist/index.d.ts",
+  "main": "server.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "prebuild": "rimraf dist .cache tests/coverage",
+    "prebuild": "rimraf dist .cache coverage",
     "test": "jest --detectOpenHandles",
     "test:watch": "jest --watch --detectOpenHandles",
     "test:cover": "jest --coverage --detectOpenHandles",
