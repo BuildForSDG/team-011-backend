@@ -3,5 +3,9 @@ module.exports = {
   rootDir: '__tests__',
   testRegex: ['.spec.js$', '.test.js$'],
   coverageDirectory: './coverage',
-  testEnvironment: 'node'
+  testEnvironment: 'node',
+  bail: 1,
+  verbose: true,
+  forceExit: true,
+  setupFilesAfterEnv: ['./jest.setup.js']
 };

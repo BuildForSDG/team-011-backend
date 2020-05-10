@@ -1,5 +1,3 @@
-// const appName = async () => '#BuildforSDG';
-
 // export default appName;
 require('dotenv').config();
 
@@ -9,7 +7,7 @@ const cors = require('cors');
 const passport = require('passport');
 
 // Setting up port
-const connUri = process.env.MONGO_LOCAL_CONN_URL;
+const connUri = process.env.MONGO_URI;
 
 //= == 1 - CREATE APP
 // Creating express app and configuring middleware needed for authentication
@@ -24,14 +22,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // form-urlencoded
 
-// view engine setup
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'jade');
-
 //= == 2 - SET UP DATABASE
 // Configure mongoose's promise to global promise
 mongoose.promise = global.Promise;
-mongoose.connect(connUri, { useNewUrlParser: true, useCreateIndex: true });
+mongoose.connect(connUri, {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopology: true
+});
 
 const { connection } = mongoose;
 connection.on('error', () => {
@@ -41,7 +39,6 @@ connection.on('error', () => {
 //= == 3 - INITIALIZE PASSPORT MIDDLEWARE
 app.use(passport.initialize());
 require('./middlewares/jwt')(passport);
-
 
 //= == 4 - CONFIGURE ROUTES
 // Configure Route

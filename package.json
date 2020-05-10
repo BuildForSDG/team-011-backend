@@ -14,13 +14,14 @@
   },
   "scripts": {
     "prebuild": "rimraf dist .cache __tests__/coverage",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cover": "jest --coverage",
+    "test": "jest --detectOpenHandles",
+    "test:watch": "jest --watch --detectOpenHandles",
+    "test:cover": "jest --coverage --detectOpenHandles",
     "lint": "eslint \"src/**/*.js\"",
-    "build": "parcel build src/server.js --no-source-maps",
-    "watch": "parcel watch src/server.js",
-    "start": "nodemon src/server.js"
+    "build": "parcel build src/server.js --target=node --no-source-maps",
+    "watch": "parcel watch src/server.js --target=node",
+    "start:dev": "nodemon src/server.js",
+    "start": "node dist/server.js"
   },
   "author": {
     "name": "Build For SDG",
@@ -45,11 +46,13 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-validator": "^6.4.1",
+    "http-status-codes": "^1.4.0",
     "jade": "^1.11.0",
     "jsonwebtoken": "^8.5.1",
     "mailgun-js": "0.5",
     "mongoose": "^5.9.11",
     "multer": "^1.4.2",
+    "parcel-bundler": "^1.12.4",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0"
   },
@@ -61,8 +64,9 @@
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.2",
     "jest": "^25.5.4",
+    "mongodb-memory-server": "^6.5.2",
+    "mongodb-memory-server-global": "^6.5.2",
     "nodemon": "^2.0.3",
-    "parcel-bundler": "^1.12.4",
     "supertest": "^4.0.2"
   },
   "browserslist": [
