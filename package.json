@@ -2,7 +2,10 @@
   "name": "js-starter",
   "version": "0.0.1",
   "description": "A boilerplate for starting js code",
-  "keywords": ["js-starter", "boilerplate"],
+  "keywords": [
+    "js-starter",
+    "boilerplate"
+  ],
   "private": false,
   "main": "app.js",
   "types": "dist/index.d.ts",
@@ -49,6 +52,7 @@
     "mailgun-js": "0.5",
     "mongoose": "^5.9.11",
     "multer": "^1.4.2",
+    "parcel-bundler": "^1.12.4",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0"
   },
@@ -61,9 +65,11 @@
     "eslint-plugin-import": "^2.20.2",
     "jest": "^25.5.4",
     "mongodb-memory-server": "^6.5.2",
+    "mongodb-memory-server-global": "^6.5.2",
     "nodemon": "^2.0.3",
-    "parcel-bundler": "^1.12.4",
     "supertest": "^4.0.2"
   },
-  "browserslist": ["last 1 Chrome versions"]
+  "browserslist": [
+    "last 1 Chrome versions"
+  ]
 }

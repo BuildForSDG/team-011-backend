@@ -4,7 +4,7 @@
 name: Node.js CI
 
 on:
-  push:
+  pull_request:
     branches: [develop]
 
 jobs:
@@ -64,11 +64,3 @@ jobs:
           DOMAIN: domain.mailgun.org
           FROM_EMAIL: farmtrader130@gmail.com
           FROM_NAME: FarmLord
-
-      # Deploy to Heroku
-      - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.0.4 # This is the action
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: 'farm-landlord' #Must be unique in Heroku
-          heroku_email: 'fortuneochi@gmail.com'

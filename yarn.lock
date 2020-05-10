@@ -5113,7 +5113,14 @@ mongodb-memory-server-core@6.5.2:
   optionalDependencies:
     mongodb "^3.5.4"
 
-mongodb-memory-server@^6.5.2:
+mongodb-memory-server-global@^6.5.2:
+  version "6.5.2"
+  resolved "https://registry.yarnpkg.com/mongodb-memory-server-global/-/mongodb-memory-server-global-6.5.2.tgz#acc4b353bec1cd00917dce406bdfa7d1e4e8474c"
+  dependencies:
+    mongodb-memory-server "6.5.2"
+    os "^0.1.1"
+
+mongodb-memory-server@6.5.2, mongodb-memory-server@^6.5.2:
   version "6.5.2"
   resolved "https://registry.yarnpkg.com/mongodb-memory-server/-/mongodb-memory-server-6.5.2.tgz#47f4c19ab830f63ee6119629072eee2df7d8957a"
   dependencies:
@@ -5570,6 +5577,10 @@ os-homedir@^1.0.0:
 os-tmpdir@^1.0.0, os-tmpdir@~1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/os-tmpdir/-/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
+
+os@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/os/-/os-0.1.1.tgz#208845e89e193ad4d971474b93947736a56d13f3"
 
 osenv@^0.1.4:
   version "0.1.5"
