@@ -37,7 +37,7 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run node scripts
         run: |
-          yarn install --frozen-lockfile
+          yarn install
           yarn lint
           yarn test:cover
           yarn build
