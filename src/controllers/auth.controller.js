@@ -75,7 +75,7 @@ exports.login = async (req, res) => {
     }
     // Login successful, write token, and send back usergenerateJWT
     const { token, expiresIn } = user.generateJWT();
-    return res.status(httpStatus.OK).json({ token, expiresIn });
+    return res.status(httpStatus.OK).json({ token, expiresInMins: expiresIn });
   } catch (error) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
