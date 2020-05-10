@@ -9,7 +9,7 @@ const cors = require('cors');
 const passport = require('passport');
 
 // Setting up port
-const connUri = process.env.MONGO_LOCAL_CONN_URL;
+const connUri = process.env.MONGO_URI;
 
 //= == 1 - CREATE APP
 // Creating express app and configuring middleware needed for authentication

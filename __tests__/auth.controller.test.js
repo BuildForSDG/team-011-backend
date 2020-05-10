@@ -1,38 +1,69 @@
+const httpStatus = require('http-status-codes');
 const request = require('supertest');
 const app = require('../src/app');
+const dbHelper = require('./db-helper');
+const Token = require('../src/models/token');
 
-describe('User Registration', () => {
-  it('Should return 201 and confirmation for valid input', async () => {
-    // mock valid user input
-    const newUser = {
-      firstName: 'John',
-      lastName: 'Wick',
-      username: 'John Wick',
-      email: 'ogunfusika64@gmail.com',
-      password: '12345678',
-      role: 'landowner'
-    };
-    // send request to the app
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send(newUser);
-    // assertions
-    expect(res.statusCode).toEqual(201);
-    expect(res.body.message).toEqual(`A verification email has been sent to ${newUser.email}.`);
-    expect(res.body.errors.length).toEqual(0);
-  });
+const util = require('../src/utils/index');
+
+jest.mock('../src/utils/index');
+/**
+ * Connect to a new in-memory database before running any tests.
+ */
+beforeAll(async () => dbHelper.connect());
+
+/**
+ * Clear all test data after every test.
+ */
+// afterEach(async () => dbHelper.clearDatabase());
+
+/**
+ * Remove and close the db and server.
+ */
+afterAll(async () => {
+  await dbHelper.clearDatabase();
+  await dbHelper.closeDatabase();
 });
 
-describe('User Login', () => {
-  it('Should return 201 and confirmation for valid input', async () => {
+describe('Auth Controller', () => {
+  const userLogin = {
+    email: 'ogunfusika64@gmail.com',
+    password: '12345678'
+  };
+  let newUser = {
+    firstName: 'John',
+    lastName: 'Wick',
+    username: 'John Wick',
+    role: 'landowner'
+  };
+
+  it('Register: Should return 201 and confirmation for valid input', async () => {
     // mock valid user input
-    const user = {
-      email: 'ogunfusika64@gmail.com',
-      password: '12345678'
-    };
+
+    newUser = { ...userLogin, ...newUser };
     // send request to the app
-    const res = await request(app).post('/api/auth/login').send(user);
+    util.sendEmail = jest.fn();
+
+    const res = await request(app).post('/api/auth/register').send(newUser).expect(httpStatus.CREATED);
     // assertions
-    expect(res.statusCode).toEqual(200);
+    expect(res.body.id).toBeDefined();
+    newUser.id = res.body.id;
+  });
+  it(`Login: Should return ${httpStatus.UNAUTHORIZED} for unconfirmed email`, async () => {
+    await request(app).post('/api/auth/login').send(userLogin).expect(httpStatus.UNAUTHORIZED);
+  });
+
+  it(`VerifyEmail: Should return ${httpStatus.BAD_REQUEST} for incorrect token`, async () => {
+    await request(app).get('/api/auth/verify/12345').expect(httpStatus.BAD_REQUEST);
+  });
+
+  it(`VerifyEmail: Should return ${httpStatus.OK} for correct token`, async () => {
+    const { token } = await Token.findOne({ userId: newUser.id });
+    await request(app).get(`/api/auth/verify/${token}`).expect(httpStatus.OK);
+  });
+
+  it(`Login: Should return ${httpStatus.OK} confirmed email`, async () => {
+    const res = await request(app).post('/api/auth/login').send(userLogin).expect(httpStatus.OK);
+    expect(res.body).toBeDefined();
   });
 });

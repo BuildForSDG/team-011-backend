@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -74,8 +75,7 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
-UserSchema.pre('save', async (next) => {
+UserSchema.pre('save', function (next) {
   const user = this;
 
   if (!user.isModified('password')) return next();
@@ -92,9 +92,12 @@ UserSchema.pre('save', async (next) => {
   });
 });
 
-UserSchema.methods.comparePword = async (password) => bcrypt.compareSync(password, this.password);
+UserSchema.methods.comparePword = function (password) {
+  return bcrypt.compareSync(password, this.password);
+};
 
-UserSchema.methods.generateJWT = async () => {
+// eslint-disable-next-line func-names
+UserSchema.methods.generateJWT = function () {
   const today = new Date();
   const expirationDate = new Date(today);
   expirationDate.setDate(today.getDate() + 60);
@@ -113,12 +116,12 @@ UserSchema.methods.generateJWT = async () => {
   });
 };
 
-UserSchema.methods.generatePasswordReset = async () => {
+UserSchema.methods.generatePasswordReset = function () {
   this.resetPasswordToken = crypto.randomBytes(20).toString('hex');
   this.resetPasswordExpires = Date.now() + 3600000; // expires in an hour
 };
 
-UserSchema.methods.generateVerificationToken = async () => {
+UserSchema.methods.generateVerificationToken = function () {
   const payload = {
     // eslint-disable-next-line no-underscore-dangle
     userId: this._id,

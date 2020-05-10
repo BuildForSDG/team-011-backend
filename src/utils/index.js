@@ -3,7 +3,6 @@ const path = require('path');
 const Mailgun = require('mailgun-js');
 const cloudinary = require('../config/cloudinary');
 
-
 const mailgun = new Mailgun({
   apiKey: process.env.MAILGUN_API_KEY,
   domain: process.env.DOMAIN
