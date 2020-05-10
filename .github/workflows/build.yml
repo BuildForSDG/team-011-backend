@@ -48,6 +48,8 @@ jobs:
           yarn lint
           yarn test:cover
           yarn build
+        env:
+          MONGO_URI: mongodb://localhost:27017/FarmLord
 
       # Deploy to Heroku
       - uses: actions/checkout@v2

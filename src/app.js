@@ -1,5 +1,3 @@
-// const appName = async () => '#BuildforSDG';
-
 // export default appName;
 require('dotenv').config();
 
