@@ -21,7 +21,7 @@ router.post('/register', [
 
 router.post('/login', [
   check('email').isEmail().withMessage('Enter a valid email address'),
-  check('password').not().isEmpty()
+  check('password').not().isEmpty().withMessage('You password is required')
 ], validate, Auth.login);
 
 
