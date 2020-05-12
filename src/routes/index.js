@@ -1,7 +1,10 @@
 const auth = require('./auth.route');
 const user = require('./user.route');
+const land = require('./land.route');
+
 
 const authenticate = require('../middlewares/authenticate');
+// const multerConfig =
 
 module.exports = (app) => {
   app.get('/', (req, res) => {
@@ -10,4 +13,6 @@ module.exports = (app) => {
 
   app.use('/api/auth', auth);
   app.use('/api/user', authenticate, user);
+
+  app.use('/api/land', land);
 };

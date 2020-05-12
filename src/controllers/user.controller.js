@@ -25,7 +25,7 @@ exports.recover = async (req, res) => {
     const to = user.email;
     const link = `http://${req.headers.host}/api/auth/reset/${user.resetPasswordToken}`;
     const html = `<p>Hi ${user.username}</p>
-                    <p>Please click on the following <a href='${link}'>link</a> to reset your password.</p> 
+                    <p>Please click on the following <a href='${link}'>link</a> to reset your password.</p>
                     <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`;
 
     await sendEmail(to, { subject, html }, '');
@@ -128,7 +128,7 @@ exports.store = async (req, res) => {
     const to = user.email;
     const from = process.env.FROM_EMAIL;
     const link = `http://${req.headers.host}/api/auth/reset/${user.resetPasswordToken}`;
-    const html = `<p>Hi ${user.username}<p><br><p>A new account has been created for you on ${domain}. Please click on the following <a href='${link}'>link</a> to set your password and login.</p> 
+    const html = `<p>Hi ${user.username}<p><br><p>A new account has been created for you on ${domain}. Please click on the following <a href='${link}'>link</a> to set your password and login.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
 
     await sendEmail({
@@ -165,10 +165,11 @@ exports.update = async (req, res) => {
   try {
     const update = req.body;
     const { id } = req.params;
-    const { userId } = req;
+    // const { userId } = req;
 
     // Make sure the passed id is that of the logged in user
-    if (userId.toString() !== id.toString()) return res.status(401).json({ message: 'Sorry, you don\'\t have the permission to update this data.' });
+    // if (userId.toString() !== id.toString()) return res.status(401).json({
+    //  message: 'Sorry, you don\'\t have the permission to update this data.' });
 
     const user = await User.findByIdAndUpdate(id, { $set: update }, { new: true });
 

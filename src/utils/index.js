@@ -21,7 +21,7 @@ function uploader(req) {
 }
 
 function sendEmail(recipient, message, attachment) {
-  Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const data = {
       from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
       to: recipient,

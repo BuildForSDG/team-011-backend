@@ -12,11 +12,11 @@ async function sendVerificationEmail(user, host) {
 
   const subject = 'Account Verification Token';
   const to = user.email;
-  const link = `http://${host}/api/auth/verify/${token}`;
+  const link = `http://${host}/api/auth/verify/${token.token}`;
   const html = `<p>Hi ${user.username}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
 
-  sendEmail(to, { subject, html }, '');
+  await sendEmail(to, { subject, html }, '');
 }
 
 // @route POST api/auth/register
@@ -40,7 +40,9 @@ exports.register = async (req, res) => {
 
     await sendVerificationEmail(addUser, req.headers.host);
 
-    const result = await res.status(httpStatus.CREATED).send({ id: addUser.id });
+    const result = await res
+      .status(httpStatus.CREATED)
+      .send({ success: true, message: `A verification email has been sent to ${addUser.email}.`, id: addUser.id });
 
     return result;
   } catch (error) {

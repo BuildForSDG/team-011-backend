@@ -3,8 +3,12 @@ require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const passport = require('passport');
+const path = require('path');
+
+const landRoutes = require('./routes/land.route');
 
 // Setting up port
 const connUri = process.env.MONGO_URI;
@@ -20,6 +24,11 @@ app.use(express.json());
 
 // for parsing application/xwww-
 app.use(express.urlencoded({ extended: false }));
+
+// Body parser middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 // form-urlencoded
 
 //= == 2 - SET UP DATABASE
@@ -43,5 +52,8 @@ require('./middlewares/jwt')(passport);
 //= == 4 - CONFIGURE ROUTES
 // Configure Route
 require('./routes/index')(app);
+
+app.use('/api/land', landRoutes);
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;

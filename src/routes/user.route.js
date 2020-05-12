@@ -17,7 +17,8 @@ router.post('/', [
   check('email').isEmail().withMessage('Enter a valid email address'),
   check('username').not().isEmpty().withMessage('You username is required'),
   check('firstName').not().isEmpty().withMessage('You first name is required'),
-  check('lastName').not().isEmpty().withMessage('You last name is required')
+  check('lastName').not().isEmpty().withMessage('You last name is required'),
+  check('role').not().isEmpty().withMessage('Please select a role')
 ], validate, User.store);
 
 // SHOW
@@ -26,7 +27,7 @@ router.get('/:id', User.show);
 // UPDATE
 router.put(
   '/:id',
-  User.grantAccess('updateAny', 'profile'),
+  // User.grantAccess('updateAny', 'profile'),
   upload,
   User.update
 );
