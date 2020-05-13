@@ -21,22 +21,20 @@ function uploader(req) {
 }
 
 function sendEmail(recipient, message, attachment) {
-  Promise((resolve, reject) => {
-    const data = {
-      from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
-      to: recipient,
-      subject: message.subject,
-      text: message.text,
-      inline: attachment,
-      html: message.html
-    };
-
-    mailgun.messages().send(data, (error, result) => {
-      if (error) {
-        return reject(error);
-      }
-      return resolve(result);
-    });
+  const data = {
+    from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+    to: recipient,
+    subject: message.subject,
+    text: message.text,
+    inline: attachment,
+    html: message.html
+  };
+  mailgun.messages().send(data, (error, result) => {
+    if (error) {
+      console.error(error);
+    } else {
+      console.log({ ...result });
+    }
   });
 }
 

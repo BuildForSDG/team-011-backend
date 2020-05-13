@@ -15,12 +15,6 @@ const UserSchema = new mongoose.Schema(
       trim: true
     },
 
-    username: {
-      type: String,
-      unique: true,
-      required: 'Your username is required'
-    },
-
     password: {
       type: String,
       required: 'Your password is required',
@@ -102,7 +96,6 @@ UserSchema.methods.generateJWT = function () {
     // eslint-disable-next-line no-underscore-dangle
     userId: this._id,
     email: this.email,
-    username: this.username,
     firstName: this.firstName,
     lastName: this.lastName,
     role: this.role
