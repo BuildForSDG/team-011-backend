@@ -25,7 +25,7 @@ exports.recover = async (req, res) => {
     const subject = 'Password change request';
     const to = user.email;
     const link = `http://${req.headers.host}/api/auth/reset/${user.resetPasswordToken}`;
-    const html = `<p>Hi ${user.username}</p>
+    const html = `<p>Hi ${user.firstName}</p>
                     <p>Please click on the following <a href='${link}'>link</a> to reset your password.</p>
                     <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`;
 
@@ -83,7 +83,7 @@ exports.resetPassword = async (req, res) => {
 
     const subject = 'Your password has been changed';
     const to = user.email;
-    const html = `<p>Hi ${user.username}</p>
+    const html = `<p>Hi ${user.firstName}</p>
                     <p>This is a confirmation that the password for your account ${user.email} has just been changed.</p>`;
 
     await sendEmail(to, { subject, html }, '');
