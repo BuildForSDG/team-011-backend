@@ -40,7 +40,7 @@ exports.register = async (req, res) => {
 
     await sendVerificationEmail(addUser, req.headers.host);
 
-    return await res.status(httpStatus.CREATED).json({ id: addUser.id });
+    return await res.status(httpStatus.CREATED).json({ canLogin: false, id: addUser.id });
   } catch (error) {
     const data = { success: false, message: error.message };
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(data);
@@ -72,8 +72,8 @@ exports.login = async (req, res) => {
         .json({ type: 'not-verified', message: 'Your account has not been verified.' });
     }
     // Login successful, write token, and send back usergenerateJWT
-    const { token, expiresIn } = user.generateJWT();
-    return res.status(httpStatus.OK).json({ token, expiresInMins: expiresIn });
+    const { accessToken, expiresIn } = user.generateJWT();
+    return res.status(httpStatus.OK).json({ accessToken, expiresInMins: expiresIn });
   } catch (error) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
