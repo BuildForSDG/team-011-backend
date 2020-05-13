@@ -13,7 +13,7 @@ async function sendVerificationEmail(user, host) {
   const subject = 'Account Verification Token';
   const to = user.email;
   const link = `http://${host}/api/auth/verify/${token}`;
-  const html = `<p>Hi ${user.username}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
+  const html = `<p>Hi ${user.firstName}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
 
   sendEmail(to, { subject, html }, '');
