@@ -96,8 +96,8 @@ UserSchema.methods.generateJWT = function () {
   };
 
   const expiresIn = 60 * 60 * 24; // expires in 24 hours
-  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
-  return { token, expiresIn };
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
+  return { accessToken, expiresIn };
 };
 
 UserSchema.methods.generatePasswordReset = function () {
