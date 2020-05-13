@@ -28,11 +28,10 @@ describe('Auth Controller', () => {
   let newUser = {
     firstName: 'John',
     lastName: 'Wick',
-    username: 'John Wick',
     role: 'landowner'
   };
 
-  it('Register: Should return 201 and confirmation for valid input', async () => {
+  it(`Register: Should return ${httpStatus.CREATED} and confirmation for valid input`, async () => {
     // mock valid user input
 
     newUser = { ...userLogin, ...newUser };
@@ -43,6 +42,14 @@ describe('Auth Controller', () => {
     // assertions
     expect(res.body.id).toBeDefined();
     newUser.id = res.body.id;
+  });
+  it(`Register2: Should return ${httpStatus.CONFLICT} if user already exist`, async () => {
+    // mock valid user input
+
+    newUser = { ...userLogin, ...newUser };
+    util.sendEmail = jest.fn();
+
+    await request(app).post('/api/auth/register').send(newUser).expect(httpStatus.CONFLICT);
   });
   it(`Login: Should return ${httpStatus.UNAUTHORIZED} for unconfirmed email`, async () => {
     await request(app).post('/api/auth/login').send(userLogin).expect(httpStatus.UNAUTHORIZED);

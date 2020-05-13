@@ -31,7 +31,7 @@ exports.register = async (req, res) => {
 
     if (user) {
       return res
-        .status(httpStatus.UNAUTHORIZED)
+        .status(httpStatus.CONFLICT)
         .json({ message: 'The email address you have entered is already associated with another account.' });
     }
 
@@ -40,9 +40,7 @@ exports.register = async (req, res) => {
 
     await sendVerificationEmail(addUser, req.headers.host);
 
-    const result = await res.status(httpStatus.CREATED).send({ id: addUser.id });
-
-    return result;
+    return await res.status(httpStatus.CREATED).json({ id: addUser.id });
   } catch (error) {
     const data = { success: false, message: error.message };
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(data);
