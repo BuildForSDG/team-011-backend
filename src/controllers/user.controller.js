@@ -33,7 +33,7 @@ exports.recover = async (req, res) => {
                     <p>Please click on the following <a href='${link}'>link</a> to reset your password.</p>
                     <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`;
 
-    await sendEmail(to, { subject, html }, '');
+    sendEmail(to, { subject, html }, '');
 
     return res.status(httpStatus.OK).json({ message: `A reset email has been sent to ${user.email}.` });
   } catch (error) {
@@ -53,9 +53,9 @@ exports.reset = async (req, res) => {
       resetPasswordExpires: { $gt: Date.now() }
     });
 
-    if (!user)
+    if (!user) {
       return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Password reset token is invalid or has expired.' });
-
+    }
     // Redirect user to form with the email address
     return res.render('reset', { user });
   } catch (error) {
@@ -75,9 +75,9 @@ exports.resetPassword = async (req, res) => {
       resetPasswordExpires: { $gt: Date.now() }
     });
 
-    if (!user)
+    if (!user) {
       return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Password reset token is invalid or has expired.' });
-
+    }
     // Set the new password
     user.password = req.body.password;
     user.resetPasswordToken = undefined;
@@ -92,7 +92,7 @@ exports.resetPassword = async (req, res) => {
     const html = `<p>Hi ${user.firstName}</p>
                     <p>This is a confirmation that the password for your account ${user.email} has just been changed.</p>`;
 
-    await sendEmail(to, { subject, html }, '');
+    sendEmail(to, { subject, html }, '');
 
     return res.status(httpStatus.OK).json({ message: 'Your password has been updated.' });
   } catch (error) {
@@ -153,7 +153,8 @@ exports.store = async (req, res) => {
 
     return res.status(httpStatus.OK).json({ message: `An email has been sent to ${user.email}.` });
   } catch (error) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    const data = { success: false, message: error.message };
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(data);
   }
 };
 
