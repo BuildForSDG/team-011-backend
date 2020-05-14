@@ -51,7 +51,7 @@ describe('Land Controller', () => {
         .send(newLand)
         .expect(httpStatus.FORBIDDEN);
     });
-    it(`should return ${httpStatus.CREATED} if user is a Landowner and uploads image file`, async () => {
+    it(`should return ${httpStatus.CREATED} if user is a Landowner and uploads photo`, async () => {
       const filePath = `${__dirname}/../docs/use-case.jpg`;
       const file = await fs.readFile(filePath);
 
@@ -66,17 +66,17 @@ describe('Land Controller', () => {
 
       const res = await request(app)
         .post('/api/land')
-        .attach('landImage', file, { filename: 'user-case.jpg' })
+        .attach('landPhoto', file, { filename: 'user-case.jpg' })
         .set({ Authorization: `Bearer ${accessToken}` })
         .field(newLand)
         .expect(httpStatus.CREATED);
 
       const user = await User.findOne({ email: landownerEmail });
-      const { imageUrl, _id, createdBy } = res.body;
+      const { photoUrl, _id, createdBy } = res.body;
 
       // assertions
       expect(util.uploadImgAndReturnUrl).toBeCalledTimes(1);
-      expect(imageUrl).toBe(imgUrlAfterUpload);
+      expect(photoUrl).toBe(imgUrlAfterUpload);
       expect(user.id).toBe(createdBy);
       expect(_id).toBeDefined();
       newLand._id = _id;
@@ -84,13 +84,19 @@ describe('Land Controller', () => {
     it(`should return ${httpStatus.BAD_REQUEST} if a Landowner uploads non-image file`, async () => {
       const filePath = `${__dirname}/../README.md`;
       const file = await fs.readFile(filePath);
-      const wrongImageLand = { ...newLand };
-      delete wrongImageLand.id;
+
       await request(app)
         .post('/api/land')
-        .attach('landImage', file, { filename: 'README.md' })
+        .attach('landPhoto', file, { filename: 'README.md' })
         .set({ Authorization: `Bearer ${accessToken}` })
-        .field(wrongImageLand)
+        .field(newLand)
+        .expect(httpStatus.BAD_REQUEST);
+    });
+    it(`should return ${httpStatus.BAD_REQUEST} if a Landowner does not upload photo`, async () => {
+      await request(app)
+        .post('/api/land')
+        .set({ Authorization: `Bearer ${accessToken}` })
+        .field(newLand)
         .expect(httpStatus.BAD_REQUEST);
     });
     it(`should return ${httpStatus.BAD_REQUEST} if input is invalid`, async () => {

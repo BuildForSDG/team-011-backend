@@ -11,6 +11,6 @@ const landDtoSchema = Joi.object({
   auctionType: Joi.string().valid(...Object.keys(AuctionType)),
   installmentType: Joi.string().valid(...Object.keys(InstallmentType)),
   currency: Joi.string().valid(...Object.keys(Currency)),
-  landImage: Joi.any()
+  landPhoto: Joi.any()
 }).unknown(false);
 module.exports = { landDtoSchema };

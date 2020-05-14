@@ -11,11 +11,11 @@ const { uploadImgAndReturnUrl } = require('../utils/index');
  */
 exports.createLand = async (req, res) => {
   try {
-    const imageUrl = await uploadImgAndReturnUrl(req.file);
+    const photoUrl = await uploadImgAndReturnUrl(req.file);
     const { id } = req.user;
     const land = new Land({
       createdBy: id,
-      imageUrl,
+      photoUrl,
       ...req.body
     });
 
@@ -68,7 +68,7 @@ exports.modifyLandDetail = async (req, res) => {
 
     // Attempt to upload to cloudinary
     const result = await uploadImgAndReturnUrl(req);
-    const landDetails = await Land.findOneAndUpdate(id, { $set: { imageUrl: result.url } }, { new: true });
+    const landDetails = await Land.findOneAndUpdate(id, { $set: { photoUrl: result.url } }, { new: true });
     // console.log(landDetails);
 
     return res.status(200).json({ land: landDetails, message: 'Land details has been updated' });

@@ -21,7 +21,7 @@ const landSchema = mongoose.Schema(
   {
     title: { type: String, required: true },
     description: { type: String },
-    imageUrl: { type: String },
+    photoUrl: { type: String },
     shortLocation: { type: String, required: true },
     fullLocation: { type: String, required: true },
     acres: { type: Number, required: true },

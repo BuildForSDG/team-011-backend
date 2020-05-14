@@ -50,7 +50,5 @@ require('./middlewares/jwt')(passport);
 // Configure Route
 require('./routes/index')(app);
 
-// app.use('/api/land', landRoutes);
-// app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use(errors());
 module.exports = app;
