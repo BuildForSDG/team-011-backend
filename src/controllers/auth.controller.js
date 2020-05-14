@@ -1,6 +1,6 @@
 const httpStatus = require('http-status-codes');
 
-const User = require('../models/user.model');
+const { User } = require('../models/user.model');
 const Token = require('../models/token');
 const { sendEmail } = require('../utils/index');
 
@@ -16,7 +16,7 @@ async function sendVerificationEmail(user, host) {
   const html = `<p>Hi ${user.firstName}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
 
-  sendEmail(to, { subject, html }, '');
+  await sendEmail(to, { subject, html }, '');
 }
 
 // @route POST api/auth/register

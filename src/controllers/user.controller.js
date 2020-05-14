@@ -1,7 +1,9 @@
-const User = require('../models/user.model');
+const httpStatus = require('http-status-codes');
+
+const { User } = require('../models/user.model');
 const { sendEmail } = require('../utils/index');
 const { uploader } = require('../utils/index');
-const { roles } = require('../utils/roles');
+const { roles } = require('../utils/permissions');
 
 // @route POST api/auth/recover
 // @desc Recover Password - Generates token and Sends password reset email
@@ -13,7 +15,7 @@ exports.recover = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({
+      return res.status(httpStatus.UNAUTHORIZED).json({
         message: `The email address ${req.body.email} is not associated with any account. Double-check your email address and try again.`
       });
     }
@@ -31,11 +33,11 @@ exports.recover = async (req, res) => {
                     <p>Please click on the following <a href='${link}'>link</a> to reset your password.</p>
                     <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`;
 
-    await sendEmail(to, { subject, html }, '');
+    sendEmail(to, { subject, html }, '');
 
-    return res.status(200).json({ message: `A reset email has been sent to ${user.email}.` });
+    return res.status(httpStatus.OK).json({ message: `A reset email has been sent to ${user.email}.` });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -51,12 +53,13 @@ exports.reset = async (req, res) => {
       resetPasswordExpires: { $gt: Date.now() }
     });
 
-    if (!user) return res.status(401).json({ message: 'Password reset token is invalid or has expired.' });
-
+    if (!user) {
+      return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Password reset token is invalid or has expired.' });
+    }
     // Redirect user to form with the email address
     return res.render('reset', { user });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -72,8 +75,9 @@ exports.resetPassword = async (req, res) => {
       resetPasswordExpires: { $gt: Date.now() }
     });
 
-    if (!user) return res.status(401).json({ message: 'Password reset token is invalid or has expired.' });
-
+    if (!user) {
+      return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Password reset token is invalid or has expired.' });
+    }
     // Set the new password
     user.password = req.body.password;
     user.resetPasswordToken = undefined;
@@ -88,11 +92,11 @@ exports.resetPassword = async (req, res) => {
     const html = `<p>Hi ${user.firstName}</p>
                     <p>This is a confirmation that the password for your account ${user.email} has just been changed.</p>`;
 
-    await sendEmail(to, { subject, html }, '');
+    sendEmail(to, { subject, html }, '');
 
-    return res.status(200).json({ message: 'Your password has been updated.' });
+    return res.status(httpStatus.OK).json({ message: 'Your password has been updated.' });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -101,7 +105,7 @@ exports.resetPassword = async (req, res) => {
 // @access Public
 exports.index = async (req, res) => {
   const users = await User.find({});
-  return res.status(200).json({ users });
+  return res.status(httpStatus.OK).json({ users });
 };
 
 // @route POST api/user
@@ -115,7 +119,7 @@ exports.store = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user) {
-      return res.status(401).json({
+      return res.status(httpStatus.UNAUTHORIZED).json({
         message:
           'The email address you have entered is already associated with another account. You can change this users role instead.'
       });
@@ -147,9 +151,10 @@ exports.store = async (req, res) => {
       html
     });
 
-    return res.status(200).json({ message: `An email has been sent to ${user.email}.` });
+    return res.status(httpStatus.OK).json({ message: `An email has been sent to ${user.email}.` });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    const data = { success: false, message: error.message };
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(data);
   }
 };
 
@@ -162,11 +167,11 @@ exports.show = async (req, res) => {
 
     const user = await User.findById(id);
 
-    if (!user) return res.status(401).json({ message: 'User does not exist' });
+    if (!user) return res.status(httpStatus.UNAUTHORIZED).json({ message: 'User does not exist' });
 
-    return res.status(200).json({ user });
+    return res.status(httpStatus.OK).json({ user });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -177,17 +182,18 @@ exports.update = async (req, res) => {
   try {
     const update = req.body;
     const { id } = req.params;
-    const { userId } = req;
+
+    // const { userId } = req;
 
     // Make sure the passed id is that of the logged in user
-    if (userId.toString() !== id.toString()) {
-      return res.status(401).json({ message: "Sorry, you don'\t have the permission to update this data." });
-    }
+    // if (userId.toString() !== id.toString()) return res.status(httpStatus.UNAUTHORIZED).json({
+    //  message: 'Sorry, you don\'\t have the permission to update this data.' });
+
     const user = await User.findByIdAndUpdate(id, { $set: update }, { new: true });
 
     // if there is no image, return success message
     if (!req.file) {
-      return res.status(200).json({ user, message: 'User has been updated' });
+      return res.status(httpStatus.OK).json({ user, message: 'User has been updated' });
     }
 
     // Attempt to upload to cloudinary
@@ -199,9 +205,9 @@ exports.update = async (req, res) => {
       { new: true }
     );
 
-    return res.status(200).json({ user: userDetails, message: 'User has been updated' });
+    return res.status(httpStatus.OK).json({ user: userDetails, message: 'User has been updated' });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -215,12 +221,14 @@ exports.destroy = async (req, res) => {
 
     // Make sure the passed id is that of the logged in user
     if (userId.toString() !== id.toString()) {
-      return res.status(401).json({ message: "Sorry, you don't have the permission to delete this data." });
+      return res
+        .status(httpStatus.UNAUTHORIZED)
+        .json({ message: "Sorry, you don't have the permission to delete this data." });
     }
     await User.findByIdAndDelete(id);
-    return res.status(200).json({ message: 'User has been deleted' });
+    return res.status(httpStatus.OK).json({ message: 'User has been deleted' });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -229,7 +237,7 @@ exports.grantAccess = function accessCheck(action, resource) {
     try {
       const permission = roles.can(req.user.role)[action](resource);
       if (!permission.granted) {
-        return res.status(401).json({
+        return res.status(httpStatus.UNAUTHORIZED).json({
           error: "You don't have enough permission to perform this action"
         });
       }

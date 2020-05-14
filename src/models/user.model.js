@@ -6,6 +6,12 @@ const crypto = require('crypto');
 
 const Token = require('./token');
 
+const UserRole = {
+  Landowner: 'Landowner',
+  Farmer: 'Farmer',
+  Admin: 'Admin'
+};
+
 const UserSchema = new mongoose.Schema(
   {
     email: {
@@ -45,9 +51,8 @@ const UserSchema = new mongoose.Schema(
     },
 
     role: {
-      type: String,
-      default: 'landowner',
-      enum: ['landowner', 'farmer', 'admin']
+      type: UserRole,
+      default: UserRole.Farmer
     },
 
     resetPasswordToken: {
@@ -115,4 +120,7 @@ UserSchema.methods.generateVerificationToken = function () {
   return new Token(payload);
 };
 
-module.exports = mongoose.model('Users', UserSchema);
+module.exports = {
+  User: mongoose.model('Users', UserSchema),
+  UserRole
+};

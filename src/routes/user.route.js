@@ -18,7 +18,8 @@ router.post(
   [
     check('email').isEmail().withMessage('Enter a valid email address'),
     check('firstName').not().isEmpty().withMessage('You first name is required'),
-    check('lastName').not().isEmpty().withMessage('You last name is required')
+    check('lastName').not().isEmpty().withMessage('You last name is required'),
+    check('role').not().isEmpty().withMessage('Please select a role')
   ],
   validate,
   User.store

@@ -8,10 +8,10 @@ const mailgun = new Mailgun({
   domain: process.env.DOMAIN
 });
 
-function uploader(req) {
+function uploadImgAndReturnUrl(file) {
   return new Promise((resolve, reject) => {
     const dUri = new Datauri();
-    const image = dUri.format(path.extname(req.file.originalname).toString(), req.file.buffer);
+    const image = dUri.format(path.extname(file.originalname).toString(), file.buffer);
 
     cloudinary.uploader.upload(image.content, (err, url) => {
       if (err) return reject(err);
@@ -38,19 +38,4 @@ function sendEmail(recipient, message, attachment) {
   });
 }
 
-// function sendEmail2(recipient, message) {
-//   const data = {
-//     from: process.env.FROM_EMAIL,
-//     to: recipient,
-//     subject: message.subject,
-//     html: message.html
-//   };
-//   return new Promise((resolve, reject) => {
-//     sgMail.send(data, (error, result) => {
-//       if (error) return reject(error);
-//       return resolve(result);
-//     });
-//   });
-// }
-
-module.exports = { uploader, sendEmail };
+module.exports = { uploadImgAndReturnUrl, sendEmail };
