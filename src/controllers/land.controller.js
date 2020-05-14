@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
+const httpStatus = require('http-status-codes');
 const { Land } = require('../models/land.model');
-const { uploader } = require('../utils/index');
+const { uploadImgAndReturnUrl } = require('../utils/index');
 
 /**
  *CREATE A NEW LAND TOO BE LEASED OUT OR RENTED OUT
@@ -10,28 +11,19 @@ const { uploader } = require('../utils/index');
  */
 exports.createLand = async (req, res) => {
   try {
-    const result = await uploader(req);
-    // console.log(req.body);
-
+    const imageUrl = await uploadImgAndReturnUrl(req.file);
+    const { id } = req.user;
     const land = new Land({
-      userId: req.body.userId,
-      titleOfLand: req.body.titleOfLand,
-      descriptionOfLand: req.body.descriptionOfLand,
-      imageUrl: result.url,
-      locationOfLand: req.body.locationOfLand,
-      priceOfLand: req.body.priceOfLand,
-      currency: req.body.currency,
-      auctionType: req.body.auctionType
+      createdBy: id,
+      imageUrl,
+      ...req.body
     });
-    // console.log(land);
+
     const newLand = await land.save();
 
-    return res.status(201).json({
-      status: 'Success',
-      message: newLand
-    });
+    return res.status(httpStatus.CREATED).json(newLand);
   } catch (error) {
-    return res.status(201).json({
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       status: 'An error has occurred, please check the error message for details',
       message: error.message
     });
@@ -75,7 +67,7 @@ exports.modifyLandDetail = async (req, res) => {
     }
 
     // Attempt to upload to cloudinary
-    const result = await uploader(req);
+    const result = await uploadImgAndReturnUrl(req);
     const landDetails = await Land.findOneAndUpdate(id, { $set: { imageUrl: result.url } }, { new: true });
     // console.log(landDetails);
 

@@ -6,20 +6,45 @@ const Currency = {
   USD: 'USD',
   EUR: 'EUR'
 };
-
-const landSchema = mongoose.Schema({
-  titleOfLand: { type: String, required: true },
-  descriptionOfLand: { type: String, required: true },
-  imageUrl: { type: String },
-  locationOfLand: { type: String, required: true },
-  userId: { type: String, required: true },
-  priceOfLand: { type: Number, required: true },
-  auctionType: { type: String, required: true },
-  currency: { type: Currency, required: true },
-  date: { type: Date, default: Date.now }
-});
-
+const AuctionType = {
+  Lease: 'Lease',
+  Rent: 'Rent'
+};
+const InstallmentType = {
+  Biannual: 'Biannual',
+  Annual: 'Annual',
+  Monthly: 'Monthly',
+  Weekly: 'Weekly',
+  Daily: 'Daily'
+};
+const landSchema = mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    description: { type: String },
+    imageUrl: { type: String },
+    shortLocation: { type: String, required: true },
+    fullLocation: { type: String, required: true },
+    acres: { type: Number, required: true },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'User'
+    },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    price: { type: Number, required: true },
+    auctionType: { type: AuctionType, required: true },
+    installmentType: { type: InstallmentType, required: true },
+    currency: { type: Currency, required: true }
+  },
+  { timestamps: true }
+);
+const Land = mongoose.model('Lands', landSchema);
 module.exports = {
-  Land: mongoose.model('Land', landSchema),
-  Currency
+  Land,
+  Currency,
+  AuctionType,
+  InstallmentType
 };

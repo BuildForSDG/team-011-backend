@@ -1,55 +1,47 @@
 const express = require('express');
 const multer = require('multer');
-const { check } = require('express-validator');
+const createHttpError = require('http-errors');
+
+const { celebrate, Segments } = require('celebrate');
+
+// const fileUpload = require('express-fileupload');
 
 const router = express.Router();
 
-const validate = require('../middlewares/validate');
+const roleMiddleware = require('../middlewares/role.middleware');
 const Land = require('../controllers/land.controller');
+const { UserRole } = require('../models/user.model');
+const { landDtoSchema } = require('../validations/land.schema');
 
-const upload = multer().single('imageUrl');
+const upload = multer({
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+      cb(null, true);
+    } else {
+      cb(null, false);
+      cb(createHttpError(createHttpError.BadRequest(), 'Only .png, .jpg and .jpeg format allowed!'));
+    }
+  }
+});
 
 router.post(
   '/',
-  // [
-  //   check('userId').not().isEmpty().withMessage('User-id is reqired.'),
-
-  //   check('titleOfLand').not().isEmpty().withMessage('Please provide the title of the Land!'),
-
-  //   check('descriptionOfLand')
-  //     .not()
-  //     .isEmpty()
-  //     .withMessage('Please give a brief description of the Land')
-  //     .isLength({ min: 4, max: 30 })
-  //     .withMessage('The description should be brief'),
-
-  //   check('imageUrl').not().isEmpty().withMessage('Please upload an image of the land, in JPG or PNG format'),
-
-  //   check('currency')
-  //     .not()
-  //     .isEmpty()
-  //     .withMessage('Please upload an image of the land, in JPG or PNG format')
-  //     .isCurrency(),
-
-  //   check('locationOfLand').not().isEmpty().withMessage('Please upload an image of the land, in JPG or PNG format'),
-
-  //   check('auctionType').not().isEmpty().withMessage('Please select if you want to rent or lease it out'),
-
-  //   check('priceOfLand').not().isEmpty().withMessage('')
-  //     .isNumeric()
-  // ],
-  validate,
-  upload,
+  upload.single('landImage'),
+  roleMiddleware(UserRole.Admin, UserRole.Landowner),
+  celebrate({ [Segments.BODY]: landDtoSchema }),
   Land.createLand
 );
 
-// router.post('/', validate, upload, Land.getAllLand);
-router.get('/', validate, Land.getAllLand);
-router.get('/:id', validate, Land.getOneLand);
+router.get('/', Land.getAllLand);
+router.get('/:id', Land.getOneLand);
 
+router.put(
+  '/:id',
+  roleMiddleware(UserRole.Admin, UserRole.Landowner),
+  celebrate({ [Segments.BODY]: landDtoSchema }),
+  Land.modifyLandDetail
+);
 
-router.put('/:id', upload, Land.modifyLandDetail);
-
-router.delete('/:id', validate, Land.deleteLandDetail);
+router.delete('/:id', Land.deleteLandDetail);
 
 module.exports = router;

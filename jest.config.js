@@ -1,11 +1,13 @@
 module.exports = {
   moduleFileExtensions: ['js', 'json'],
-  rootDir: '__tests__',
+  rootDir: 'src',
+  roots: ['../tests', '../'],
   testRegex: ['.spec.js$', '.test.js$'],
-  coverageDirectory: './coverage',
+  coverageDirectory: '../coverage',
   testEnvironment: 'node',
   bail: 1,
   verbose: true,
   forceExit: true,
-  setupFilesAfterEnv: ['./jest.setup.js']
+  collectCoverageFrom: ['**/*.js'],
+  setupFilesAfterEnv: ['../tests/jest.setup.js']
 };

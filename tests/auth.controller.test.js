@@ -1,29 +1,11 @@
 const httpStatus = require('http-status-codes');
 const request = require('supertest');
 const app = require('../src/app');
-const dbHelper = require('./db-helper');
 const Token = require('../src/models/token');
-
 const util = require('../src/utils/index');
 
+// mock utility functions
 jest.mock('../src/utils/index');
-/**
- * Connect to a new in-memory database before running any tests.
- */
-beforeAll(async () => dbHelper.connect());
-
-/**
- * Clear all test data after every test.
- */
-// afterEach(async () => dbHelper.clearDatabase());
-
-/**
- * Remove and close the db and server.
- */
-afterAll(async () => {
-  await dbHelper.clearDatabase();
-  await dbHelper.closeDatabase();
-});
 
 describe('Auth Controller', () => {
   const userLogin = {
@@ -33,21 +15,27 @@ describe('Auth Controller', () => {
   let newUser = {
     firstName: 'John',
     lastName: 'Wick',
-    username: 'John Wick',
     role: 'landowner'
   };
-
-  it('Register: Should return 201 and confirmation for valid input', async () => {
-    // mock valid user input
-
+  beforeEach(() => jest.clearAllMocks());
+  // tests
+  it(`Register - fresh user: should return ${httpStatus.CREATED} and confirmation for valid input`, async () => {
     newUser = { ...userLogin, ...newUser };
-    // send request to the app
-    util.sendEmail = jest.fn();
-
     const res = await request(app).post('/api/auth/register').send(newUser).expect(httpStatus.CREATED);
+
     // assertions
     expect(res.body.id).toBeDefined();
+    // email sending should be called once at most
+    expect(util.sendEmail).toBeCalledTimes(1);
+
     newUser.id = res.body.id;
+  });
+  it(`Register - existing user: should return ${httpStatus.CONFLICT} and confirmation for valid input`, async () => {
+    newUser = { ...userLogin, ...newUser };
+
+    await request(app).post('/api/auth/register').send(newUser).expect(httpStatus.CONFLICT);
+    // email sending should never be called!
+    expect(util.sendEmail).toBeCalledTimes(0);
   });
   it(`Login: Should return ${httpStatus.UNAUTHORIZED} for unconfirmed email`, async () => {
     await request(app).post('/api/auth/login').send(userLogin).expect(httpStatus.UNAUTHORIZED);
@@ -64,6 +52,7 @@ describe('Auth Controller', () => {
 
   it(`Login: Should return ${httpStatus.OK} confirmed email`, async () => {
     const res = await request(app).post('/api/auth/login').send(userLogin).expect(httpStatus.OK);
-    expect(res.body).toBeDefined();
+    expect(res.body.accessToken).toBeDefined();
+    expect(res.body.expiresInMins).toBeDefined();
   });
 });

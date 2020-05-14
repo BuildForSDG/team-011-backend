@@ -6,6 +6,12 @@ const crypto = require('crypto');
 
 const Token = require('./token');
 
+const UserRole = {
+  Landowner: 'Landowner',
+  Farmer: 'Farmer',
+  Admin: 'Admin'
+};
+
 const UserSchema = new mongoose.Schema(
   {
     email: {
@@ -13,12 +19,6 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       required: 'Your email is required',
       trim: true
-    },
-
-    username: {
-      type: String,
-      unique: true,
-      required: 'Your username is required'
     },
 
     password: {
@@ -39,12 +39,6 @@ const UserSchema = new mongoose.Schema(
       max: 100
     },
 
-    bio: {
-      type: String,
-      required: false,
-      max: 255
-    },
-
     profileImage: {
       type: String,
       required: false,
@@ -57,9 +51,8 @@ const UserSchema = new mongoose.Schema(
     },
 
     role: {
-      type: String,
-      default: 'landowner',
-      enum: ['landowner', 'farmer', 'admin']
+      type: UserRole,
+      default: UserRole.Farmer
     },
 
     resetPasswordToken: {
@@ -98,22 +91,18 @@ UserSchema.methods.comparePword = function (password) {
 
 // eslint-disable-next-line func-names
 UserSchema.methods.generateJWT = function () {
-  const today = new Date();
-  const expirationDate = new Date(today);
-  expirationDate.setDate(today.getDate() + 60);
-
   const payload = {
     // eslint-disable-next-line no-underscore-dangle
     userId: this._id,
     email: this.email,
-    username: this.username,
     firstName: this.firstName,
-    lastName: this.lastName
+    lastName: this.lastName,
+    role: this.role
   };
 
-  return jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: parseInt(expirationDate.getTime() / 1000, 10)
-  });
+  const expiresIn = 60 * 60 * 24; // expires in 24 hours
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
+  return { accessToken, expiresIn };
 };
 
 UserSchema.methods.generatePasswordReset = function () {
@@ -131,4 +120,7 @@ UserSchema.methods.generateVerificationToken = function () {
   return new Token(payload);
 };
 
-module.exports = mongoose.model('Users', UserSchema);
+module.exports = {
+  User: mongoose.model('Users', UserSchema),
+  UserRole
+};

@@ -1,14 +1,16 @@
 // export default appName;
 require('dotenv').config();
+const { errors } = require('celebrate');
 
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 const passport = require('passport');
-const path = require('path');
+// const multer = require('multer');
 
-const landRoutes = require('./routes/land.route');
+// const forms = multer();
+// const path = require('path');
+// const logger = require('morgan');
 
 // Setting up port
 const connUri = process.env.MONGO_URI;
@@ -17,17 +19,12 @@ const connUri = process.env.MONGO_URI;
 // Creating express app and configuring middleware needed for authentication
 const app = express();
 
+// app.use(logger('dev'));
 app.use(cors());
 
-// for parsing application/json
 app.use(express.json());
-
-// for parsing application/xwww-
-app.use(express.urlencoded({ extended: false }));
-
-// Body parser middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(forms.array());
+app.use(express.urlencoded({ extended: true }));
 
 // form-urlencoded
 
@@ -53,7 +50,7 @@ require('./middlewares/jwt')(passport);
 // Configure Route
 require('./routes/index')(app);
 
-app.use('/api/land', landRoutes);
-app.use('/images', express.static(path.join(__dirname, 'images')));
-
+// app.use('/api/land', landRoutes);
+// app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use(errors());
 module.exports = app;
