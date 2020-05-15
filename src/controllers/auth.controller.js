@@ -1,6 +1,6 @@
 const httpStatus = require('http-status-codes');
 
-const User = require('../models/user.model');
+const { User } = require('../models/user.model');
 const Token = require('../models/token');
 const { sendEmail } = require('../utils/index');
 
@@ -13,10 +13,10 @@ async function sendVerificationEmail(user, host) {
   const subject = 'Account Verification Token';
   const to = user.email;
   const link = `http://${host}/api/auth/verify/${token}`;
-  const html = `<p>Hi ${user.username}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
+  const html = `<p>Hi ${user.firstName}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
 
-  sendEmail(to, { subject, html }, '');
+  await sendEmail(to, { subject, html }, '');
 }
 
 // @route POST api/auth/register
@@ -31,7 +31,7 @@ exports.register = async (req, res) => {
 
     if (user) {
       return res
-        .status(httpStatus.UNAUTHORIZED)
+        .status(httpStatus.CONFLICT)
         .json({ message: 'The email address you have entered is already associated with another account.' });
     }
 
@@ -40,9 +40,7 @@ exports.register = async (req, res) => {
 
     await sendVerificationEmail(addUser, req.headers.host);
 
-    const result = await res.status(httpStatus.CREATED).send({ id: addUser.id });
-
-    return result;
+    return await res.status(httpStatus.CREATED).json({ canLogin: false, id: addUser.id });
   } catch (error) {
     const data = { success: false, message: error.message };
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(data);
@@ -74,8 +72,8 @@ exports.login = async (req, res) => {
         .json({ type: 'not-verified', message: 'Your account has not been verified.' });
     }
     // Login successful, write token, and send back usergenerateJWT
-    const { token, expiresIn } = user.generateJWT();
-    return res.status(httpStatus.OK).json({ token, expiresInMins: expiresIn });
+    const { accessToken, expiresIn } = user.generateJWT();
+    return res.status(httpStatus.OK).json({ accessToken, expiresInMins: expiresIn });
   } catch (error) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }

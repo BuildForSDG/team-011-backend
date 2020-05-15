@@ -13,29 +13,25 @@ const upload = multer().single('profileImage');
 router.get('/', User.grantAccess('readAny', 'profile'), User.index);
 
 // STORE
-router.post('/', [
-  check('email').isEmail().withMessage('Enter a valid email address'),
-  check('username').not().isEmpty().withMessage('You username is required'),
-  check('firstName').not().isEmpty().withMessage('You first name is required'),
-  check('lastName').not().isEmpty().withMessage('You last name is required')
-], validate, User.store);
+router.post(
+  '/',
+  [
+    check('email').isEmail().withMessage('Enter a valid email address'),
+    check('firstName').not().isEmpty().withMessage('You first name is required'),
+    check('lastName').not().isEmpty().withMessage('You last name is required'),
+    check('role').not().isEmpty().withMessage('Please select a role')
+  ],
+  validate,
+  User.store
+);
 
 // SHOW
 router.get('/:id', User.show);
 
 // UPDATE
-router.put(
-  '/:id',
-  User.grantAccess('updateAny', 'profile'),
-  upload,
-  User.update
-);
+router.put('/:id', User.grantAccess('updateAny', 'profile'), upload, User.update);
 
 // DELETE
-router.delete(
-  '/:id',
-  User.grantAccess('deleteAny', 'profile'),
-  User.destroy
-);
+router.delete('/:id', User.grantAccess('deleteAny', 'profile'), User.destroy);
 
 module.exports = router;

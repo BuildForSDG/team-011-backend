@@ -1,10 +1,16 @@
 // export default appName;
 require('dotenv').config();
+const { errors } = require('celebrate');
 
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
+// const multer = require('multer');
+
+// const forms = multer();
+// const path = require('path');
+// const logger = require('morgan');
 
 // Setting up port
 const connUri = process.env.MONGO_URI;
@@ -13,13 +19,13 @@ const connUri = process.env.MONGO_URI;
 // Creating express app and configuring middleware needed for authentication
 const app = express();
 
+// app.use(logger('dev'));
 app.use(cors());
 
-// for parsing application/json
 app.use(express.json());
+// app.use(forms.array());
+app.use(express.urlencoded({ extended: true }));
 
-// for parsing application/xwww-
-app.use(express.urlencoded({ extended: false }));
 // form-urlencoded
 
 //= == 2 - SET UP DATABASE
@@ -44,4 +50,5 @@ require('./middlewares/jwt')(passport);
 // Configure Route
 require('./routes/index')(app);
 
+app.use(errors());
 module.exports = app;

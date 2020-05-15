@@ -2,7 +2,10 @@
   "name": "farmlord",
   "version": "0.0.1",
   "description": "An application that connect Farmer to Landowners",
-  "keywords": ["node", "jest"],
+  "keywords": [
+    "node",
+    "jest"
+  ],
   "private": false,
   "main": "server.js",
   "directories": {
@@ -33,20 +36,25 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@hapi/joi": "^17.1.1",
     "@sendgrid/mail": "^7.1.0",
     "accesscontrol": "^2.2.1",
     "bcrypt": "^4.0.1",
+    "celebrate": "^12.1.1",
     "cloudinary": "^1.21.0",
     "cors": "^2.8.5",
     "datauri": "^2.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-validator": "^6.4.1",
+    "http-errors": "^1.7.3",
     "http-status-codes": "^1.4.0",
     "jade": "^1.11.0",
     "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.15",
     "mailgun-js": "0.5",
     "mongoose": "^5.9.11",
+    "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "parcel-bundler": "^1.12.4",
     "passport": "^0.4.1",
@@ -65,5 +73,7 @@
     "nodemon": "^2.0.3",
     "supertest": "^4.0.2"
   },
-  "browserslist": ["last 1 Chrome versions"]
+  "browserslist": [
+    "last 1 Chrome versions"
+  ]
 }
