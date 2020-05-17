@@ -30,9 +30,7 @@ exports.register = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user) {
-      return res
-        .status(httpStatus.CONFLICT)
-        .json({ message: 'The email address you have entered is already associated with another account.' });
+      return res.status(httpStatus.CONFLICT).json({ message: 'Account already exists' });
     }
 
     const newUser = new User({ ...req.body, role: 'landowner' });
@@ -57,7 +55,7 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(httpStatus.UNAUTHORIZED).json({
-        msg: `The email address ${email} is not associated with any account. Double-check your email address and try again.`
+        message: 'Invalid login attempt'
       });
     }
 
@@ -136,7 +134,7 @@ exports.resendToken = async (req, res) => {
 
     if (!user) {
       return res.status(httpStatus.UNAUTHORIZED).json({
-        message: `The email address ${req.body.email} is not associated with any account. Double-check your email address and try again.`
+        message: 'Invalid login attempt'
       });
     }
 

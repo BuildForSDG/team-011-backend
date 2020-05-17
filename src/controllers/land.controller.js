@@ -40,7 +40,7 @@ exports.getOneLand = async (req, res) => {
     const land = await Land.findOne({
       _id: req.params.id
     });
-    return res.status(200).json({ message: land });
+    return res.status(httpStatus.OK).json({ message: land });
   } catch (error) {
     return res.status(404).json({
       status: 'Error, an error has occurred, please check the error message for details',
@@ -63,7 +63,7 @@ exports.modifyLandDetail = async (req, res) => {
 
     // if there is no image, return success message
     if (!req.file) {
-      return res.status(200).json({ land, message: 'Land details has been updated' });
+      return res.status(httpStatus.OK).json({ land, message: 'Land details has been updated' });
     }
 
     // Attempt to upload to cloudinary
@@ -71,9 +71,9 @@ exports.modifyLandDetail = async (req, res) => {
     const landDetails = await Land.findOneAndUpdate(id, { $set: { photoUrl: result.url } }, { new: true });
     // console.log(landDetails);
 
-    return res.status(200).json({ land: landDetails, message: 'Land details has been updated' });
+    return res.status(httpStatus.OK).json({ land: landDetails, message: 'Land details has been updated' });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -87,9 +87,9 @@ exports.deleteLandDetail = async (req, res) => {
     const { id } = req.params;
 
     await Land.findOneAndDelete(id);
-    return res.status(200).json({ message: 'Land Property has been removed successfully' });
+    return res.status(httpStatus.OK).json({ message: 'Land Property has been removed successfully' });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -101,12 +101,12 @@ exports.deleteLandDetail = async (req, res) => {
 exports.getAllLand = async (_req, res) => {
   try {
     const lands = await Land.find();
-    return res.status(200).json({
+    return res.status(httpStatus.OK).json({
       message: 'Success',
       lands
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(httpStatus.BAD_REQUEST).json({
       status: 'Error, an error has occurred, please check the error message for details',
       message: error.message
     });

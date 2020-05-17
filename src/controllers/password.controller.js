@@ -1,3 +1,4 @@
+const httpStatus = require('http-status-codes');
 const User = require('../models/user.model');
 const { sendEmail } = require('../utils/index');
 
@@ -11,8 +12,8 @@ exports.recover = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({
-        message: `The email address ${req.body.email} is not associated with any account. Double-check your email address and try again.`
+      return res.status(httpStatus.UNAUTHORIZED).json({
+        message: 'Invalid login attempt'
       });
     }
     // Generate and set password reset token
@@ -31,9 +32,9 @@ exports.recover = async (req, res) => {
 
     await sendEmail(to, { subject, html }, '');
 
-    return res.status(200).json({ message: `A reset email has been sent to ${user.email}.` });
+    return res.status(httpStatus.OK).json({ message: `A reset email has been sent to ${user.email}.` });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -49,12 +50,13 @@ exports.reset = async (req, res) => {
       resetPasswordExpires: { $gt: Date.now() }
     });
 
-    if (!user) return res.status(401).json({ message: 'Password reset token is invalid or has expired.' });
-
+    if (!user) {
+      return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Password reset token is invalid or has expired.' });
+    }
     // Redirect user to form with the email address
     return res.render('reset', { user });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
 
@@ -70,8 +72,9 @@ exports.resetPassword = async (req, res) => {
       resetPasswordExpires: { $gt: Date.now() }
     });
 
-    if (!user) return res.status(401).json({ message: 'Password reset token is invalid or has expired.' });
-
+    if (!user) {
+      return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Password reset token is invalid or has expired.' });
+    }
     // Set the new password
     user.password = req.body.password;
     user.resetPasswordToken = undefined;
@@ -88,8 +91,8 @@ exports.resetPassword = async (req, res) => {
 
     await sendEmail(to, { subject, html }, '');
 
-    return res.status(200).json({ message: 'Your password has been updated.' });
+    return res.status(httpStatus.OK).json({ message: 'Your password has been updated.' });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
