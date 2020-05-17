@@ -6,11 +6,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
-// const multer = require('multer');
-
-// const forms = multer();
-// const path = require('path');
-// const logger = require('morgan');
+const logger = require('morgan');
 
 // Setting up port
 const connUri = process.env.MONGO_URI;
@@ -19,7 +15,7 @@ const connUri = process.env.MONGO_URI;
 // Creating express app and configuring middleware needed for authentication
 const app = express();
 
-// app.use(logger('dev'));
+app.use(logger('dev'));
 app.use(cors());
 
 app.use(express.json());
