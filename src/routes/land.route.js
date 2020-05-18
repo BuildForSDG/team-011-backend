@@ -34,6 +34,7 @@ router.post(
 
 router.get('/', Land.getAllLand);
 router.get('/:id', Land.getOneLand);
+router.get('/landowner/:id', Land.getAllLandOwnerLand);
 
 router.put(
   '/:id',

@@ -8,25 +8,6 @@ const genericHandler = require('../middlewares/route-handler');
 
 const router = express.Router();
 
-<<<<<<< HEAD
-router.get('/', (req, res) => {
-  res.status(200).json({ message: 'You are in the Auth Endpoint. Register or Login to test Authentication.' });
-});
-
-router.post('/register', [
-  check('email').isEmail().withMessage('Enter a valid email address'),
-  check('password').not().isEmpty().isLength({ min: 6 })
-    .withMessage('Must be at least 6 chars long'),
-  check('firstName').not().isEmpty().withMessage('You first name is required'),
-  check('lastName').not().isEmpty().withMessage('You last name is required')
-], validate, Auth.register);
-
-router.post('/login', [
-  check('email').isEmail().withMessage('Enter a valid email address'),
-  check('password').not().isEmpty().withMessage('You password is required')
-], validate, Auth.login);
-
-=======
 router.get('/', genericHandler);
 
 router.post(
@@ -49,7 +30,6 @@ router.post(
   validate,
   Auth.login
 );
->>>>>>> dd58cfcc29d6927f124c00f516c53b26bf2495ab
 
 // EMAIL Verification
 router.get('/verify/:token', Auth.verify);

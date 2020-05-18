@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 const httpStatus = require('http-status-codes');
-const { Land } = require('../models/land.model');
-const { uploadImgAndReturnUrl } = require('../utils/index');
+const { LandRequest } = require('../models/landrequest.model');
 
 /**
  *CREATE A NEW LAND TOO BE LEASED OUT OR RENTED OUT
@@ -9,19 +8,17 @@ const { uploadImgAndReturnUrl } = require('../utils/index');
  *@desc Add a New Land Properety to be bidded for or sold to farmers
  *@access Private
  */
-exports.createLand = async (req, res) => {
+exports.createLandRequest = async (req, res) => {
   try {
-    const photoUrl = await uploadImgAndReturnUrl(req.file);
     const { id } = req.user;
-    const land = new Land({
+    const landRequest = new LandRequest({
       createdBy: id,
-      photoUrl,
       ...req.body
     });
 
-    const newLand = await land.save();
+    const newLandRequest = await landRequest.save();
 
-    return res.status(httpStatus.CREATED).json(newLand);
+    return res.status(httpStatus.CREATED).json(newLandRequest);
   } catch (error) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       status: 'An error has occurred, please check the error message for details',
@@ -35,12 +32,12 @@ exports.createLand = async (req, res) => {
  * @desc Get the details of a particular land
  * @access Public
  */
-exports.getOneLand = async (req, res) => {
+exports.getOneLandRequest = async (req, res) => {
   try {
-    const land = await Land.findOne({
+    const landRequest = await LandRequest.findOne({
       _id: req.params.id
     });
-    return res.status(200).json({ message: land });
+    return res.status(200).json({ message: landRequest });
   } catch (error) {
     return res.status(404).json({
       status: 'Error, an error has occurred, please check the error message for details',
@@ -51,27 +48,17 @@ exports.getOneLand = async (req, res) => {
 
 /**
  * @route PUT api/land/{id}
- * @desc Modify or Update Land details
+ * @desc Modify or Update Land Request
  * @access Public
  */
-exports.modifyLandDetail = async (req, res) => {
+exports.modifyLandRequest = async (req, res) => {
   try {
     const update = req.body;
     const { id } = req.params;
 
-    const land = await Land.findOneAndUpdate(id, { $set: update }, { new: true, useFindAndModify: false });
+    const landRequest = await LandRequest.findOneAndUpdate(id, { $set: update }, { new: true, useFindAndModify: false });
 
-    // if there is no image, return success message
-    if (!req.file) {
-      return res.status(200).json({ land, message: 'Land details has been updated' });
-    }
-
-    // Attempt to upload to cloudinary
-    const result = await uploadImgAndReturnUrl(req);
-    const landDetails = await Land.findOneAndUpdate(id, { $set: { photoUrl: result.url } }, { new: true });
-    // console.log(landDetails);
-
-    return res.status(200).json({ land: landDetails, message: 'Land details has been updated' });
+    return res.status(200).json({ landRequest, message: 'LandRequest details has been updated' });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -79,14 +66,14 @@ exports.modifyLandDetail = async (req, res) => {
 
 /**
  * @route DELETE api/land/{id}
- * @desc Delete  Land Detail
+ * @desc Delete  Land Request
  *  @access Public
  */
-exports.deleteLandDetail = async (req, res) => {
+exports.deleteLandRequest = async (req, res) => {
   try {
     const { id } = req.params;
 
-    await Land.findOneAndDelete(id);
+    await LandRequest.findOneAndDelete(id);
     return res.status(200).json({ message: 'Land Property has been removed successfully' });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -98,12 +85,12 @@ exports.deleteLandDetail = async (req, res) => {
  * @desc All Available Land
  *  @access Public
  */
-exports.getAllLand = async (_req, res) => {
+exports.getAllLandRequests = async (_req, res) => {
   try {
-    const lands = await Land.find();
+    const landRequests = await LandRequest.find();
     return res.status(200).json({
       message: 'Success',
-      lands
+      landRequests
     });
   } catch (error) {
     return res.status(400).json({
@@ -119,14 +106,14 @@ exports.getAllLand = async (_req, res) => {
  * @desc All LandOwners Land
  *  @access Public
  */
-exports.getAllLandOwnerLand = async (_req, res) => {
+exports.getAllFarmerLandRequests = async (_req, res) => {
   try {
-    const lands = await Land.find({
+    const landRequests = await LandRequest.find({
       userId: _req.params.id
     });
     return res.status(200).json({
       message: 'Success',
-      lands
+      landRequests
     });
   } catch (error) {
     return res.status(400).json({
