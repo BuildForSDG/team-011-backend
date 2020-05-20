@@ -12,7 +12,7 @@ async function sendVerificationEmail(user, host) {
 
   const subject = 'Account Verification Token';
   const to = user.email;
-  const link = `http://${host}/api/auth/verify/${token}`;
+  const link = `http://${host}/api/auth/verify/${token.token}`;
   const html = `<p>Hi ${user.firstName}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
 
@@ -35,7 +35,7 @@ exports.register = async (req, res) => {
         .json({ message: 'The email address you have entered is already associated with another account.' });
     }
 
-    const newUser = new User({ ...req.body, role: 'landowner' });
+    const newUser = new User({ ...req.body, role: req.body.role });
     const addUser = await newUser.save();
 
     await sendVerificationEmail(addUser, req.headers.host);
@@ -73,7 +73,9 @@ exports.login = async (req, res) => {
     }
     // Login successful, write token, and send back usergenerateJWT
     const { accessToken, expiresIn } = user.generateJWT();
-    return res.status(httpStatus.OK).json({ accessToken, expiresInMins: expiresIn });
+    return res.status(httpStatus.OK).json({
+      token: { accessToken, expiresInMins: expiresIn }, user, role: user.role
+    });
   } catch (error) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }

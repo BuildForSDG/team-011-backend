@@ -15,7 +15,7 @@ exports.createLand = async (req, res) => {
     const { id } = req.user;
     const land = new Land({
       createdBy: id,
-      photoUrl,
+      photoUrl: photoUrl.url,
       ...req.body
     });
 
@@ -122,7 +122,7 @@ exports.getAllLand = async (_req, res) => {
 exports.getAllLandOwnerLand = async (_req, res) => {
   try {
     const lands = await Land.find({
-      userId: _req.params.id
+      createdBy: _req.params.id
     });
     return res.status(200).json({
       message: 'Success',

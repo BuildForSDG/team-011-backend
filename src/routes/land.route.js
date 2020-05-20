@@ -27,7 +27,7 @@ const upload = multer({
 router.post(
   '/',
   upload.single('landPhoto'),
-  roleMiddleware(UserRole.Admin, UserRole.Landowner),
+ // roleMiddleware(UserRole.Admin, UserRole.Landowner),
   celebrate({ [Segments.BODY]: landDtoSchema }),
   Land.createLand
 );

@@ -1,6 +1,7 @@
 const auth = require('./auth.route');
 const user = require('./user.route');
 const land = require('./land.route');
+const landrequest = require('./landrequest.route');
 const genericHandler = require('../middlewares/route-handler');
 const authenticate = require('../middlewares/authenticate');
 
@@ -11,4 +12,6 @@ module.exports = (app) => {
   app.use('/api/user', authenticate, user);
 
   app.use('/api/land', authenticate, land);
+
+  app.use('/api/landrequest', authenticate, landrequest);
 };

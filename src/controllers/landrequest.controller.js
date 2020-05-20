@@ -109,7 +109,7 @@ exports.getAllLandRequests = async (_req, res) => {
 exports.getAllFarmerLandRequests = async (_req, res) => {
   try {
     const landRequests = await LandRequest.find({
-      userId: _req.params.id
+      createdBy: _req.params.id
     });
     return res.status(200).json({
       message: 'Success',
