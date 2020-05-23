@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { celebrate, Segments } = require('celebrate');
+// const { celebrate, Segments } = require('celebrate');
 
 
 const router = express.Router();
@@ -11,7 +11,7 @@ const { UserRole } = require('../models/user.model');
 
 router.post(
   '/',
- // roleMiddleware(UserRole.Admin, UserRole.Landowner),
+  // roleMiddleware(UserRole.Admin, UserRole.Landowner),
   LandRequest.createLandRequest
 );
 

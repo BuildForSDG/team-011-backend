@@ -4,7 +4,7 @@ const { User } = require('../models/user.model');
 const Token = require('../models/token');
 const { sendEmail } = require('../utils/index');
 
-async function sendVerificationEmail(user, host) {
+async function sendVerificationEmail(user, host, origin) {
   const token = user.generateVerificationToken();
 
   // Save the verification token
@@ -12,7 +12,7 @@ async function sendVerificationEmail(user, host) {
 
   const subject = 'Account Verification Token';
   const to = user.email;
-  const link = `http://${host}/api/auth/verify/${token.token}`;
+  const link = `http://${origin}/api/auth/verify/${token.token}`;
   const html = `<p>Hi ${user.firstName}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
 
@@ -38,9 +38,10 @@ exports.register = async (req, res) => {
     const newUser = new User({ ...req.body, role: req.body.role });
     const addUser = await newUser.save();
 
-    await sendVerificationEmail(addUser, req.headers.host);
+    // const origin = req.get('origin');
+    // await sendVerificationEmail(addUser, req.headers.host, origin);
 
-    return await res.status(httpStatus.CREATED).json({ canLogin: false, id: addUser.id });
+    return await res.status(httpStatus.CREATED).json({ success: true, message: 'User Registration successful', user: addUser });
   } catch (error) {
     const data = { success: false, message: error.message };
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(data);
@@ -146,7 +147,8 @@ exports.resendToken = async (req, res) => {
       const data = { message: 'This account has already been verified. Please log in.' };
       return res.status(httpStatus.BAD_REQUEST).json(data);
     }
-    await sendVerificationEmail(user, req.headers.host);
+    const origin = req.get('origin');
+    await sendVerificationEmail(user, req.headers.host, origin);
     return res.status(httpStatus.OK).send('Email sent');
   } catch (error) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
