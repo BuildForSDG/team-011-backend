@@ -4,7 +4,7 @@
 const httpStatus = require('http-status-codes');
 const request = require('supertest');
 const fs = require('fs').promises;
-const { AuctionType, Currency, InstallmentType } = require('../src/models/land.model');
+const { AuctionType, InstallmentType } = require('../src/models/land.model');
 const app = require('../src/app');
 const util = require('../src/utils/index');
 const { User } = require('../src/models/user.model');
@@ -28,9 +28,7 @@ describe('Land Controller', () => {
     price: 34900,
     acres: 35,
     auctionType: AuctionType.Rent,
-    currency: Currency.NGN,
     installmentType: InstallmentType.Monthly,
-    title: 'Lekki Gardens',
     fullLocation: 'Near GRA, Chevron Head Quatres',
     shortLocation: 'Nigeria'
   };
@@ -40,13 +38,13 @@ describe('Land Controller', () => {
     let accessToken;
 
     it(`should return ${httpStatus.UNAUTHORIZED} if user is not signed in`, async () =>
-      request(app).post('/api/land').send(newLand).expect(httpStatus.UNAUTHORIZED));
+      request(app).post('/api/lands').send(newLand).expect(httpStatus.UNAUTHORIZED));
 
     it(`should return ${httpStatus.FORBIDDEN} if user is NOT a Landowner`, async () => {
       // Login as Farmer
       accessToken = await getAccessToken({ ...userLogin, email: 'farmer@gmail.com' });
       await request(app)
-        .post('/api/land')
+        .post('/api/lands')
         .set({ Authorization: `Bearer ${accessToken}` })
         .send(newLand)
         .expect(httpStatus.FORBIDDEN);
@@ -62,39 +60,43 @@ describe('Land Controller', () => {
       // mock this utility method because we don't want
       // to actually upload files to cloud during test
       const imgUrlAfterUpload = 'https://www.image_url.com';
-      util.uploadImgAndReturnUrl.mockReturnValueOnce(imgUrlAfterUpload);
+      const photoRes = {
+        secure_url: imgUrlAfterUpload,
+        url: imgUrlAfterUpload
+      };
+      util.uploadImgAndReturnUrl.mockReturnValueOnce(photoRes);
 
       const res = await request(app)
-        .post('/api/land')
-        .attach('landPhoto', file, { filename: 'user-case.jpg' })
+        .post('/api/lands')
+        .attach('photo', file, { filename: 'user-case.jpg' })
         .set({ Authorization: `Bearer ${accessToken}` })
         .field(newLand)
         .expect(httpStatus.CREATED);
 
       const user = await User.findOne({ email: landownerEmail });
-      const { photoUrl, _id, createdBy } = res.body;
+      const { photo, id, createdBy } = res.body;
 
       // assertions
       expect(util.uploadImgAndReturnUrl).toBeCalledTimes(1);
-      expect(photoUrl).toBe(imgUrlAfterUpload);
+      expect(photo).toBe(imgUrlAfterUpload);
       expect(user.id).toBe(createdBy);
-      expect(_id).toBeDefined();
-      newLand._id = _id;
+      expect(id).toBeDefined();
+      newLand.id = id;
     });
     it(`should return ${httpStatus.BAD_REQUEST} if a Landowner uploads non-image file`, async () => {
       const filePath = `${__dirname}/../README.md`;
       const file = await fs.readFile(filePath);
 
       await request(app)
-        .post('/api/land')
-        .attach('landPhoto', file, { filename: 'README.md' })
+        .post('/api/lands')
+        .attach('photo', file, { filename: 'README.md' })
         .set({ Authorization: `Bearer ${accessToken}` })
         .field(newLand)
         .expect(httpStatus.BAD_REQUEST);
     });
     it(`should return ${httpStatus.BAD_REQUEST} if a Landowner does not upload photo`, async () => {
       await request(app)
-        .post('/api/land')
+        .post('/api/lands')
         .set({ Authorization: `Bearer ${accessToken}` })
         .field(newLand)
         .expect(httpStatus.BAD_REQUEST);
@@ -102,7 +104,7 @@ describe('Land Controller', () => {
     it(`should return ${httpStatus.BAD_REQUEST} if input is invalid`, async () => {
       // Still logged in as Landowner
       const res = await request(app)
-        .post('/api/land')
+        .post('/api/lands')
         .set({ Authorization: `Bearer ${accessToken}` })
         .send()
         .expect(httpStatus.BAD_REQUEST);
@@ -112,8 +114,4 @@ describe('Land Controller', () => {
       newLand.id = res.body.id;
     });
   });
-
-  // it(`Update: Should return ${httpStatus.UNAUTHORIZED} for unconfirmed email`, async () => {
-  //   await request(app).post('/api/auth/login').send(userLogin).expect(httpStatus.UNAUTHORIZED);
-  // });
 });
