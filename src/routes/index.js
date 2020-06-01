@@ -9,9 +9,9 @@ module.exports = (app) => {
   app.get('/', genericHandler);
 
   app.use('/api/auth', auth);
-  app.use('/api/user', authenticate, user);
+  app.use('/api/users', authenticate, user);
 
-  app.use('/api/land', authenticate, land);
+  app.use('/api/lands', authenticate, land);
 
-  app.use('/api/landrequest', authenticate, landrequest);
+  app.use('/api/land_requests', authenticate, landrequest);
 };

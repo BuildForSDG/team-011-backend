@@ -16,7 +16,7 @@ async function sendVerificationEmail(user, host, origin) {
   const html = `<p>Hi ${user.firstName}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
 
-  await sendEmail(to, { subject, html }, '');
+  sendEmail(to, { subject, html }, '');
 }
 
 // @route POST api/auth/register
@@ -38,10 +38,15 @@ exports.register = async (req, res) => {
     const newUser = new User({ ...req.body, role: req.body.role });
     const addUser = await newUser.save();
 
-    // const origin = req.get('origin');
-    // await sendVerificationEmail(addUser, req.headers.host, origin);
+    const origin = req.get('origin');
+    await sendVerificationEmail(addUser, req.headers.host, origin);
 
-    return await res.status(httpStatus.CREATED).json({ success: true, message: 'User Registration successful', user: addUser });
+    return await res.status(httpStatus.CREATED).json({
+      success: true,
+      message: 'User Registration successful',
+      canLogin: addUser.isVerified,
+      id: addUser.id
+    });
   } catch (error) {
     const data = { success: false, message: error.message };
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(data);
@@ -58,7 +63,7 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(httpStatus.UNAUTHORIZED).json({
-        msg: `The email address ${email} is not associated with any account. Double-check your email address and try again.`
+        message: 'Invalid email or password'
       });
     }
 
@@ -73,10 +78,8 @@ exports.login = async (req, res) => {
         .json({ type: 'not-verified', message: 'Your account has not been verified.' });
     }
     // Login successful, write token, and send back usergenerateJWT
-    const { accessToken, expiresIn } = user.generateJWT();
-    return res.status(httpStatus.OK).json({
-      token: { accessToken, expiresInMins: expiresIn }, user, role: user.role
-    });
+    const { accessToken } = user.generateJWT();
+    return res.status(httpStatus.OK).json({ accessToken, id: user.id });
   } catch (error) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
@@ -145,7 +148,7 @@ exports.resendToken = async (req, res) => {
 
     if (user.isVerified) {
       const data = { message: 'This account has already been verified. Please log in.' };
-      return res.status(httpStatus.BAD_REQUEST).json(data);
+      return res.status(httpStatus.CONFLICT).json(data);
     }
     const origin = req.get('origin');
     await sendVerificationEmail(user, req.headers.host, origin);

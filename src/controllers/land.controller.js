@@ -1,37 +1,68 @@
+/* eslint-disable no-console */
 /* eslint-disable max-len */
 const httpStatus = require('http-status-codes');
 const { Land } = require('../models/land.model');
 const { uploadImgAndReturnUrl } = require('../utils/index');
-
+const { UserRole } = require('../models/user.model');
 /**
  *CREATE A NEW LAND TOO BE LEASED OUT OR RENTED OUT
- *@route POST api/land
- *@desc Add a New Land Properety to be bidded for or sold to farmers
+ *@route POST api/lands
+ *@desc Add a New Land Property to be bided for or sold to farmers
  *@access Private
  */
 exports.createLand = async (req, res) => {
   try {
-    const photoUrl = await uploadImgAndReturnUrl(req.file);
+    const photo = req.file && (await uploadImgAndReturnUrl(req.file));
     const { id } = req.user;
+    const photoUrl = (photo && photo.secure_url) || undefined;
     const land = new Land({
       createdBy: id,
-      photoUrl: photoUrl.url,
       ...req.body
     });
+    land.photo = photoUrl;
 
-    const newLand = await land.save();
+    await land.save();
 
-    return res.status(httpStatus.CREATED).json(newLand);
+    return res.status(httpStatus.CREATED).json({ ...land.toJSON() });
   } catch (error) {
+    console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      status: 'An error has occurred, please check the error message for details',
-      message: error.message
+      message: 'An error has occurred'
     });
   }
 };
 
 /**
- * @route GET api/land/{id}
+ * @route PUT api/lands/{id}
+ * @desc Modify or Update Land details
+ * @access Public
+ */
+exports.modifyLandDetail = async (req, res) => {
+  try {
+    const photo = req.file && (await uploadImgAndReturnUrl(req.file));
+    const update = req.body;
+    if (req.file) update.photo = photo.secure_url;
+    else update.photo = undefined;
+
+    const { id } = req.params;
+
+    const land = await Land.findOneAndUpdate(
+      { _id: id },
+      { $set: update, updatedBy: req.user.id },
+      { new: true, useFindAndModify: false }
+    ).exec();
+    // eslint-disable-next-line no-underscore-dangle
+    return res.status(httpStatus.OK).json({ ...land.toJSON() });
+  } catch (error) {
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'An error has occurred'
+    });
+  }
+};
+
+/**
+ * @route GET api/lands/{id}
  * @desc Get the details of a particular land
  * @access Public
  */
@@ -40,45 +71,17 @@ exports.getOneLand = async (req, res) => {
     const land = await Land.findOne({
       _id: req.params.id
     });
-    return res.status(200).json({ message: land });
+    return res.status(httpStatus.OK).json({ ...land.toJSON() });
   } catch (error) {
-    return res.status(404).json({
-      status: 'Error, an error has occurred, please check the error message for details',
-      message: error.message
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'An error has occurred'
     });
   }
 };
 
 /**
- * @route PUT api/land/{id}
- * @desc Modify or Update Land details
- * @access Public
- */
-exports.modifyLandDetail = async (req, res) => {
-  try {
-    const update = req.body;
-    const { id } = req.params;
-
-    const land = await Land.findOneAndUpdate(id, { $set: update }, { new: true, useFindAndModify: false });
-
-    // if there is no image, return success message
-    if (!req.file) {
-      return res.status(200).json({ land, message: 'Land details has been updated' });
-    }
-
-    // Attempt to upload to cloudinary
-    const result = await uploadImgAndReturnUrl(req);
-    const landDetails = await Land.findOneAndUpdate(id, { $set: { photoUrl: result.url } }, { new: true });
-    // console.log(landDetails);
-
-    return res.status(200).json({ land: landDetails, message: 'Land details has been updated' });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
-
-/**
- * @route DELETE api/land/{id}
+ * @route DELETE api/lands/{id}
  * @desc Delete  Land Detail
  *  @access Public
  */
@@ -86,52 +89,58 @@ exports.deleteLandDetail = async (req, res) => {
   try {
     const { id } = req.params;
 
-    await Land.findOneAndDelete(id);
-    return res.status(200).json({ message: 'Land Property has been removed successfully' });
+    const query = { id, createdBy: req.user.id };
+
+    // Admin should be able to delete any land
+    if (req.user.role === UserRole.Admin) delete query.createdBy;
+    await Land.findOneAndDelete(query);
+    return res.status(httpStatus.OK).json({ message: 'Land Property has been removed successfully' });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'An error has occurred'
+    });
   }
 };
 
 /**
- * @route GET api/land/
+ * @route GET api/lands/
  * @desc All Available Land
  *  @access Public
  */
-exports.getAllLand = async (_req, res) => {
+exports.getAllLand = async (req, res) => {
   try {
-    const lands = await Land.find();
-    return res.status(200).json({
-      message: 'Success',
-      lands
-    });
+    const { query, opts } = req.query;
+    const lands = await Land.find(JSON.parse(query), null, JSON.parse(opts));
+    const totalCount = await Land.countDocuments().exec();
+    return res.status(httpStatus.OK).json({ totalCount, items: lands });
   } catch (error) {
-    return res.status(400).json({
-      status: 'Error, an error has occurred, please check the error message for details',
-      message: error.message
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Error, an error has occurred, please check the error message for details'
     });
   }
 };
 
-
 /**
- * @route GET api/land/landowner
+ * @route GET api/lands/landowner
  * @desc All LandOwners Land
  *  @access Public
  */
-exports.getAllLandOwnerLand = async (_req, res) => {
+exports.getAllLandOwnerLand = async (req, res) => {
   try {
-    const lands = await Land.find({
-      createdBy: _req.params.id
-    });
-    return res.status(200).json({
-      message: 'Success',
-      lands
-    });
+    if (req.params.id !== req.user.id) {
+      return res.status(httpStatus.FORBIDDEN).json({ message: "You don't have permission to this resource" });
+    }
+    const { query, opts } = req.query;
+    console.log(req.query);
+    const lands = await Land.find(JSON.parse(query), null, JSON.parse(opts)).where('createdBy', req.user.id);
+    const totalCount = await Land.countDocuments({ createdBy: req.user.id }).exec();
+    return res.status(httpStatus.OK).json({ totalCount, items: lands });
   } catch (error) {
-    return res.status(400).json({
-      status: 'Error, an error has occurred, please check the error message for details',
-      message: error.message
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Error, an error has occurred, please check the error message for details'
     });
   }
 };

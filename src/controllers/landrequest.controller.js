@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable max-len */
 const httpStatus = require('http-status-codes');
 const { LandRequest } = require('../models/landrequest.model');
@@ -15,14 +16,13 @@ exports.createLandRequest = async (req, res) => {
       createdBy: id,
       ...req.body
     });
+    const { _id, createdBy } = await landRequest.save();
 
-    const newLandRequest = await landRequest.save();
-
-    return res.status(httpStatus.CREATED).json(newLandRequest);
+    return res.status(httpStatus.CREATED).json({ id: _id, createdBy });
   } catch (error) {
+    console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      status: 'An error has occurred, please check the error message for details',
-      message: error.message
+      message: 'An error has occurred'
     });
   }
 };
@@ -37,11 +37,11 @@ exports.getOneLandRequest = async (req, res) => {
     const landRequest = await LandRequest.findOne({
       _id: req.params.id
     });
-    return res.status(200).json({ message: landRequest });
+    return res.status(httpStatus.OK).json({ message: landRequest });
   } catch (error) {
-    return res.status(404).json({
-      status: 'Error, an error has occurred, please check the error message for details',
-      message: error.message
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'An error has occurred'
     });
   }
 };
@@ -56,11 +56,18 @@ exports.modifyLandRequest = async (req, res) => {
     const update = req.body;
     const { id } = req.params;
 
-    const landRequest = await LandRequest.findOneAndUpdate(id, { $set: update }, { new: true, useFindAndModify: false });
+    const landRequest = await LandRequest.findOneAndUpdate(
+      id,
+      { $set: update },
+      { new: true, useFindAndModify: false }
+    );
 
-    return res.status(200).json({ landRequest, message: 'LandRequest details has been updated' });
+    return res.status(httpStatus.OK).json({ landRequest, message: 'LandRequest details has been updated' });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'An error has occurred'
+    });
   }
 };
 
@@ -74,9 +81,12 @@ exports.deleteLandRequest = async (req, res) => {
     const { id } = req.params;
 
     await LandRequest.findOneAndDelete(id);
-    return res.status(200).json({ message: 'Land Property has been removed successfully' });
+    return res.status(httpStatus.OK).json({ message: 'Land Property has been removed successfully' });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'An error has occurred'
+    });
   }
 };
 
@@ -88,18 +98,17 @@ exports.deleteLandRequest = async (req, res) => {
 exports.getAllLandRequests = async (_req, res) => {
   try {
     const landRequests = await LandRequest.find();
-    return res.status(200).json({
+    return res.status(httpStatus.OK).json({
       message: 'Success',
       landRequests
     });
   } catch (error) {
-    return res.status(400).json({
-      status: 'Error, an error has occurred, please check the error message for details',
-      message: error.message
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'An error has occurred'
     });
   }
 };
-
 
 /**
  * @route GET api/land/landowner
@@ -111,14 +120,14 @@ exports.getAllFarmerLandRequests = async (_req, res) => {
     const landRequests = await LandRequest.find({
       createdBy: _req.params.id
     });
-    return res.status(200).json({
+    return res.status(httpStatus.OK).json({
       message: 'Success',
       landRequests
     });
   } catch (error) {
-    return res.status(400).json({
-      status: 'Error, an error has occurred, please check the error message for details',
-      message: error.message
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'An error has occurred'
     });
   }
 };

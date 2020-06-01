@@ -23,8 +23,7 @@ describe('Auth Controller', () => {
     newUser = { ...userLogin, ...newUser };
     const res = await request(app).post('/api/auth/register').send(newUser).expect(httpStatus.CREATED);
 
-    // assertions
-    expect(res.body.id).toBeDefined();
+    expect(res.body.canLogin).toBeDefined();
     // email sending should be called once at most
     expect(util.sendEmail).toBeCalledTimes(1);
 
@@ -53,6 +52,5 @@ describe('Auth Controller', () => {
   it(`Login: Should return ${httpStatus.OK} confirmed email`, async () => {
     const res = await request(app).post('/api/auth/login').send(userLogin).expect(httpStatus.OK);
     expect(res.body.accessToken).toBeDefined();
-    expect(res.body.expiresInMins).toBeDefined();
   });
 });

@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 
 const landRequestSchema = mongoose.Schema(
   {
-    landId: { type: String, required: true },
-    status: { type: Boolean, required: false },
+    landId: { type: mongoose.Schema.Types.ObjectId, ref: 'Land', required: true },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,

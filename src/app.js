@@ -6,10 +6,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const passport = require('passport');
-// const multer = require('multer');
-
-// const forms = multer();
-// const path = require('path');
 // const logger = require('morgan');
 
 // Setting up port
@@ -23,7 +19,6 @@ const app = express();
 app.use(cors());
 
 app.use(express.json());
-// app.use(forms.array());
 app.use(express.urlencoded({ extended: true }));
 
 // form-urlencoded
