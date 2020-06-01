@@ -16,7 +16,7 @@ exports.recover = async (req, res) => {
 
     if (!user) {
       return res.status(httpStatus.UNAUTHORIZED).json({
-        message: `The email address ${req.body.email} is not associated with any account. Double-check your email address and try again.`
+        message: 'Invalid login attempt'
       });
     }
     // Generate and set password reset token
@@ -120,8 +120,7 @@ exports.store = async (req, res) => {
 
     if (user) {
       return res.status(httpStatus.UNAUTHORIZED).json({
-        message:
-          'The email address you have entered is already associated with another account. You can change this users role instead.'
+        message: 'Invalid login attempt'
       });
     }
     const password = `_${Math.random().toString(36).substr(2, 9)}`; // generate a random password
