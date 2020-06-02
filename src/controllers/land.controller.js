@@ -3,7 +3,6 @@
 const httpStatus = require('http-status-codes');
 const { Land } = require('../models/land.model');
 const { uploadImgAndReturnUrl } = require('../utils/index');
-const { UserRole } = require('../models/user.model');
 /**
  *CREATE A NEW LAND TOO BE LEASED OUT OR RENTED OUT
  *@route POST api/lands
@@ -38,14 +37,14 @@ exports.createLand = async (req, res) => {
  * @access Public
  */
 exports.modifyLandDetail = async (req, res) => {
-  if (req.params.landOwnerId !== req.user.id) {
-    return res.status(httpStatus.FORBIDDEN).json({ message: "You don't have permission to modify this resource" });
-  }
+  // if (req.params.landOwnerId !== req.user.id) {
+  //   return res.status(httpStatus.FORBIDDEN).json({ message: "You don't have permission to modify this resource" });
+  // }
   try {
     const photo = req.file && (await uploadImgAndReturnUrl(req.file));
     const update = req.body;
     if (req.file) update.photo = photo.secure_url;
-    else update.photo = undefined;
+    else delete update.photo;
 
     const { landId } = req.params;
     const land = await Land.findOneAndUpdate(
@@ -89,13 +88,8 @@ exports.getOneLand = async (req, res) => {
  */
 exports.deleteLandDetail = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const query = { id, createdBy: req.user.id };
-
-    // Admin should be able to delete any land
-    if (req.user.role === UserRole.Admin) delete query.createdBy;
-    await Land.findOneAndDelete(query);
+    const { landId } = req.params;
+    await Land.findOneAndDelete({ _id: landId });
     return res.status(httpStatus.OK).json({ message: 'Land Property has been removed successfully' });
   } catch (error) {
     console.error(error);
