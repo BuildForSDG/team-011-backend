@@ -1,6 +1,7 @@
 const express = require('express');
 const { check } = require('express-validator');
 const multer = require('multer');
+const createHttpError = require('http-errors');
 
 const User = require('../controllers/user.controller');
 const LandCtrl = require('../controllers/land.controller');
@@ -11,8 +12,16 @@ const { UserRole } = require('../models/user.model');
 
 const router = express.Router();
 
-const upload = multer().single('profileImage');
-
+const upload = multer({
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+      cb(null, true);
+    } else {
+      cb(null, false);
+      cb(createHttpError(createHttpError.BadRequest(), 'Only .png, .jpg and .jpeg format allowed!'));
+    }
+  }
+});
 // INDEX
 router.get('/', User.grantAccess('readAny', 'profile'), User.index);
 
@@ -33,21 +42,26 @@ router.post(
 router.get('/:id', User.show);
 
 // Landowner Land Operations
-router.get('/:id/lands', LandCtrl.getAllLandOwnerLand);
-router.get('/:id/lands/:id', LandRequest.getOneLandRequest);
+router.get('/:landOwnerId/lands', LandCtrl.getAllLandOwnerLand);
+router.get('/:landOwnerId/lands/:landId', LandCtrl.getOneLand);
 
-router.put('/:id/lands/:id', roleMiddleware(UserRole.Landowner), LandRequest.modifyLandRequest);
-router.delete('/:id/lands/:id', roleMiddleware(UserRole.Landowner), LandRequest.deleteLandRequest);
+router.put(
+  '/:landOwnerId/lands/:landId',
+  upload.single('photo'),
+  roleMiddleware(UserRole.Landowner),
+  LandCtrl.modifyLandDetail
+);
+router.delete('/:landOwnerId/lands/:landId', roleMiddleware(UserRole.Landowner), LandCtrl.deleteLandDetail);
 
 // Farmer land-request operations
-router.get('/:id/land_requests', roleMiddleware(UserRole.Farmer), LandRequest.getAllFarmerLandRequests);
-router.get('/:id/land_requests/:id', roleMiddleware(UserRole.Farmer), LandRequest.getOneLandRequest);
+router.get('/:farmerId/land_requests', roleMiddleware(UserRole.Farmer), LandRequest.getAllFarmerLandRequests);
+router.get('/:farmerId/land_requests/:requestId', roleMiddleware(UserRole.Farmer), LandRequest.getOneLandRequest);
 
-router.put('/:id/land_requests/:id', roleMiddleware(UserRole.Farmer), LandRequest.modifyLandRequest);
-router.delete('/:id/land_requests/:id', roleMiddleware(UserRole.Farmer), LandRequest.deleteLandRequest);
+router.put('/:farmerId/land_requests/:requestId', roleMiddleware(UserRole.Farmer), LandRequest.modifyLandRequest);
+router.delete('/:farmerId/land_requests/:requestId', roleMiddleware(UserRole.Farmer), LandRequest.deleteLandRequest);
 
 // UPDATE
-router.put('/:id', User.grantAccess('updateAny', 'profile'), upload, User.update);
+router.put('/:id', User.grantAccess('updateAny', 'profile'), upload.single('profileImage'), User.update);
 
 // DELETE
 router.delete('/:id', User.grantAccess('deleteAny', 'profile'), User.destroy);

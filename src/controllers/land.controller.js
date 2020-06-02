@@ -38,20 +38,22 @@ exports.createLand = async (req, res) => {
  * @access Public
  */
 exports.modifyLandDetail = async (req, res) => {
+  if (req.params.landOwnerId !== req.user.id) {
+    return res.status(httpStatus.FORBIDDEN).json({ message: "You don't have permission to modify this resource" });
+  }
   try {
     const photo = req.file && (await uploadImgAndReturnUrl(req.file));
     const update = req.body;
     if (req.file) update.photo = photo.secure_url;
     else update.photo = undefined;
 
-    const { id } = req.params;
-
+    const { landId } = req.params;
     const land = await Land.findOneAndUpdate(
-      { _id: id },
+      { _id: landId },
       { $set: update, updatedBy: req.user.id },
       { new: true, useFindAndModify: false }
     ).exec();
-    // eslint-disable-next-line no-underscore-dangle
+
     return res.status(httpStatus.OK).json({ ...land.toJSON() });
   } catch (error) {
     console.error(error);
@@ -129,9 +131,6 @@ exports.getAllLand = async (req, res) => {
  */
 exports.getAllLandOwnerLand = async (req, res) => {
   try {
-    if (req.params.id !== req.user.id) {
-      return res.status(httpStatus.FORBIDDEN).json({ message: "You don't have permission to this resource" });
-    }
     const { query, opts } = req.query;
     console.log(req.query);
     const lands = await Land.find(JSON.parse(query), null, JSON.parse(opts)).where('createdBy', req.user.id);
