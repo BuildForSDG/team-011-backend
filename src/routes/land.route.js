@@ -29,7 +29,7 @@ router.get('/:id', Land.getOneLand);
 router.post(
   '/',
   upload.single('photo'),
-  roleMiddleware(UserRole.Admin, UserRole.Landowner),
+  roleMiddleware({ allowedRoles: [UserRole.Admin, UserRole.Landowner] }),
   celebrate({ [Segments.BODY]: landDtoSchema }),
   Land.createLand
 );
@@ -38,8 +38,8 @@ router.post(
 router.put(
   '/:id',
   upload.single('photo'),
-  roleMiddleware(UserRole.Admin),
   celebrate({ [Segments.BODY]: landUpdateDtoSchema }),
+  roleMiddleware({ allowedRoles: [UserRole.Admin] }),
   Land.modifyLandDetail
 );
 router.delete('/:id', roleMiddleware(UserRole.Admin), Land.deleteLandDetail);
