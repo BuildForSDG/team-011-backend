@@ -56,7 +56,6 @@ describe('LandRequest Controller', () => {
       request(app).post('/api/land_requests').send(newLandRequest).expect(httpStatus.UNAUTHORIZED));
 
     it(`should return ${httpStatus.FORBIDDEN} if user is NOT a Farmer but trying to make a land request`, async () => {
-      // Login as Landowner
       const { accessToken } = await getAccessToken({ ...userLogin, email: 'landowner@gmail.com' });
       await request(app)
         .post('/api/land_requests')
@@ -94,9 +93,9 @@ describe('LandRequest Controller', () => {
 
   describe('Get Land Request', () => {
     it(`should return ${httpStatus.FORBIDDEN} if landowner tries to get land request`, async () => {
-      const { accessToken } = await getAccessToken({ ...userLogin, email: 'landowner@gmail.com' });
+      const { accessToken, id } = await getAccessToken({ ...userLogin, email: 'landowner@gmail.com' });
       await request(app)
-        .get('/api/land_requests')
+        .get(`/api/users/${id}/land_requests`)
         .set({ Authorization: `Bearer ${accessToken}` })
         .expect(httpStatus.FORBIDDEN);
     });

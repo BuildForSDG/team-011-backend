@@ -2,6 +2,7 @@ const express = require('express');
 const { check } = require('express-validator');
 const multer = require('multer');
 const createHttpError = require('http-errors');
+const { celebrate, Segments } = require('celebrate');
 
 const User = require('../controllers/user.controller');
 const LandCtrl = require('../controllers/land.controller');
@@ -9,6 +10,7 @@ const validate = require('../middlewares/validate');
 const LandRequest = require('../controllers/landrequest.controller');
 const roleMiddleware = require('../middlewares/role.middleware');
 const { UserRole } = require('../models/user.model');
+const { landUpdateDtoSchema } = require('../validations/land.schema');
 
 const router = express.Router();
 
@@ -48,6 +50,7 @@ router.get('/:landOwnerId/lands/:landId', LandCtrl.getOneLand);
 router.put(
   '/:landOwnerId/lands/:landId',
   upload.single('photo'),
+  celebrate({ [Segments.BODY]: landUpdateDtoSchema }),
   roleMiddleware({ userIdParam: 'landOwnerId', allowedRoles: [UserRole.Landowner] }),
   LandCtrl.modifyLandDetail
 );

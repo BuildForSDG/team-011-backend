@@ -38,8 +38,8 @@ router.post(
 router.put(
   '/:id',
   upload.single('photo'),
-  roleMiddleware({ allowedRoles: [UserRole.Admin] }),
   celebrate({ [Segments.BODY]: landUpdateDtoSchema }),
+  roleMiddleware({ allowedRoles: [UserRole.Admin] }),
   Land.modifyLandDetail
 );
 router.delete('/:id', roleMiddleware(UserRole.Admin), Land.deleteLandDetail);

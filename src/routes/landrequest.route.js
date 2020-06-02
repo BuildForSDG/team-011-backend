@@ -12,14 +12,14 @@ const { landReqDtoSchema } = require('../validations/land_request.schema');
 router.post(
   '/',
   celebrate({ [Segments.BODY]: landReqDtoSchema }),
-  roleMiddleware(UserRole.Farmer),
+  roleMiddleware({ allowedRoles: [UserRole.Farmer] }),
   LandRequest.createLandRequest
 );
 
 // Strictly admin operations on land-requests
-router.get('/', roleMiddleware(UserRole.Admin), LandRequest.getAllLandRequests);
-router.get('/:id', roleMiddleware(UserRole.Admin), LandRequest.getOneLandRequest);
-router.put('/:id', roleMiddleware(UserRole.Admin), LandRequest.modifyLandRequest);
-router.delete('/:id', roleMiddleware(UserRole.Admin), LandRequest.deleteLandRequest);
+router.get('/', roleMiddleware({ allowedRoles: UserRole.Admin }), LandRequest.getAllLandRequests);
+router.get('/:id', roleMiddleware({ allowedRoles: UserRole.Admin }), LandRequest.getOneLandRequest);
+router.put('/:id', roleMiddleware({ allowedRoles: UserRole.Admin }), LandRequest.modifyLandRequest);
+router.delete('/:id', roleMiddleware({ allowedRoles: UserRole.Admin }), LandRequest.deleteLandRequest);
 
 module.exports = router;
