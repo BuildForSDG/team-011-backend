@@ -11,8 +11,8 @@ const { landReqDtoSchema } = require('../validations/land_request.schema');
 // Only farmers should be able to make a land-request
 router.post(
   '/',
-  celebrate({ [Segments.BODY]: landReqDtoSchema }),
   roleMiddleware({ allowedRoles: [UserRole.Farmer] }),
+  celebrate({ [Segments.BODY]: landReqDtoSchema }),
   LandRequest.createLandRequest
 );
 
