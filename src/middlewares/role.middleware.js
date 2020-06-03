@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const httpStatus = require('http-status-codes');
 
 module.exports = ({ userIdParam, allowedRoles }) => (req, res, next) => {

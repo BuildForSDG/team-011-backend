@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 const httpStatus = require('http-status-codes');
-const mongoose = require('mongoose');
 const { LandRequest } = require('../models/landrequest.model');
 const { Land } = require('../models/land.model');
 
