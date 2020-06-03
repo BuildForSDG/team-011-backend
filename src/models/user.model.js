@@ -121,6 +121,6 @@ UserSchema.methods.generateVerificationToken = function () {
 };
 
 module.exports = {
-  User: mongoose.model('Users', UserSchema),
+  User: mongoose.model('User', UserSchema),
   UserRole
 };

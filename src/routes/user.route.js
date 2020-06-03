@@ -60,15 +60,27 @@ router.delete(
   LandCtrl.deleteLandDetail
 );
 
+// Landowner land-request operations
+router.get(
+  '/:landOwnerId/land_requests',
+  roleMiddleware({ userIdParam: 'landOwnerId' }),
+  LandRequest.getAllLandownerLandRequests
+);
+router.get(
+  '/:landOwnerId/land_requests/:requestId',
+  roleMiddleware({ userIdParam: 'landOwnerId' }),
+  LandRequest.getOneLandRequest
+);
+
 // Farmer land-request operations
 router.get(
   '/:farmerId/land_requests',
-  roleMiddleware({ userIdParam: 'farmerId', allowedRoles: [UserRole.Farmer] }),
+  roleMiddleware({ userIdParam: 'farmerId' }),
   LandRequest.getAllFarmerLandRequests
 );
 router.get(
   '/:farmerId/land_requests/:requestId',
-  roleMiddleware({ userIdParam: 'farmerId', allowedRoles: [UserRole.Farmer] }),
+  roleMiddleware({ userIdParam: 'farmerId' }),
   LandRequest.getOneLandRequest
 );
 

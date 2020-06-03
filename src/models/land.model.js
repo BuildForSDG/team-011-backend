@@ -2,6 +2,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable linebreak-style */
 const mongoose = require('mongoose');
+const { schema } = require('./landrequest.model.js');
 
 const AuctionType = {
   Lease: 'Lease',
@@ -19,7 +20,7 @@ const landSchema = mongoose
     {
       description: { type: String, max: 128 },
       photo: { type: String },
-      status: { type: Boolean, default: true },
+      isAvailable: { type: Boolean, default: true },
       shortLocation: { type: String, required: true, max: 32 },
       fullLocation: { type: String, required: true, max: 512 },
       acres: { type: Number, required: true },
@@ -34,7 +35,8 @@ const landSchema = mongoose
       },
       price: { type: Number, required: true },
       auctionType: { type: AuctionType, required: true },
-      installmentType: { type: InstallmentType, required: true }
+      installmentType: { type: InstallmentType, required: true },
+      requests: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'LandRequest' }]
     },
     { timestamps: true }
   )
@@ -45,7 +47,7 @@ const landSchema = mongoose
       delete ret.__v;
     }
   });
-const Land = mongoose.model('Lands', landSchema);
+const Land = mongoose.model('Land', landSchema);
 module.exports = {
   Land,
   AuctionType,

@@ -9,6 +9,7 @@ const router = express.Router();
 
 const roleMiddleware = require('../middlewares/role.middleware');
 const Land = require('../controllers/land.controller');
+const LandReqCtrl = require('../controllers/landrequest.controller');
 const { UserRole } = require('../models/user.model');
 const { landDtoSchema, landUpdateDtoSchema } = require('../validations/land.schema');
 
@@ -25,6 +26,7 @@ const upload = multer({
 
 router.get('/', Land.getAllLand);
 router.get('/:id', Land.getOneLand);
+router.get('/:landId/landRequests', LandReqCtrl.getLandLandRequests);
 
 router.post(
   '/',
