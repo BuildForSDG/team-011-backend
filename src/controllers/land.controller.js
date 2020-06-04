@@ -2,6 +2,7 @@
 /* eslint-disable max-len */
 const httpStatus = require('http-status-codes');
 const { Land } = require('../models/land.model');
+
 const { uploadImgAndReturnUrl } = require('../utils/index');
 /**
  *CREATE A NEW LAND TOO BE LEASED OUT OR RENTED OUT
@@ -90,6 +91,7 @@ exports.deleteLandDetail = async (req, res) => {
   try {
     const { landId } = req.params;
     await Land.findOneAndDelete({ _id: landId });
+    await Land.findOneAndDelete({ landId });
     return res.status(httpStatus.OK).json({ message: 'Land Property has been removed successfully' });
   } catch (error) {
     console.error(error);

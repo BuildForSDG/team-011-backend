@@ -8,6 +8,7 @@ const landRequestSchema = mongoose
     {
       landId: { type: mongoose.Schema.Types.ObjectId, ref: 'Land', required: true },
       landownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+      isAccepted: { type: Boolean, default: false },
       createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
