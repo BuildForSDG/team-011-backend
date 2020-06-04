@@ -43,7 +43,9 @@ exports.getOneLandRequest = async (req, res) => {
   try {
     const landRequest = await LandRequest.findOne({
       _id: req.params.id
-    });
+    })
+      .populate('landId', 'price shortLocation', null, { sort: { createdAt: -1 } })
+      .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
     return res.status(httpStatus.OK).json({ message: landRequest });
   } catch (error) {
     console.error(error);
@@ -108,7 +110,9 @@ exports.deleteLandRequest = async (req, res) => {
  */
 exports.getAllLandRequests = async (_req, res) => {
   try {
-    const landRequests = await LandRequest.find();
+    const landRequests = await LandRequest.find()
+      .populate('landId', 'price shortLocation', null, { sort: { createdAt: -1 } })
+      .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
 
     return res.status(httpStatus.OK).json({
       message: 'Success',
@@ -126,7 +130,9 @@ exports.getLandLandRequests = async (req, res) => {
     const { landId } = req.params;
     const { query, opts } = req.query;
 
-    const landRequests = await LandRequest.find({ ...JSON.parse(query), landId }, null, JSON.parse(opts));
+    const landRequests = await LandRequest.find({ ...JSON.parse(query), landId }, null, JSON.parse(opts))
+      .populate('landId', 'price shortLocation', null, { sort: { createdAt: -1 } })
+      .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
     const totalCount = await LandRequest.find({ landId }).countDocuments().exec();
 
     return res.status(httpStatus.OK).json({
@@ -151,7 +157,9 @@ exports.getAllLandownerLandRequests = async (req, res) => {
     const { id: landownerId } = req.user;
     const condition = { ...JSON.parse(query || '{}'), landownerId };
     const options = JSON.parse(opts || '{}');
-    const landRequests = await LandRequest.find(condition, null, options);
+    const landRequests = await LandRequest.find(condition, null, options)
+      .populate('landId', 'price shortLocation', null, { sort: { createdAt: -1 } })
+      .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
     const totalCount = await LandRequest.find({ landownerId }).countDocuments().exec();
 
     return res.status(httpStatus.OK).json({
