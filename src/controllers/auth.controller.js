@@ -4,15 +4,14 @@ const { User } = require('../models/user.model');
 const Token = require('../models/token');
 const { sendEmail } = require('../utils/index');
 
-async function sendVerificationEmail(user, host, origin) {
+async function sendVerificationEmail(user, host, protocol) {
   const token = user.generateVerificationToken();
 
   // Save the verification token
   await token.save();
-
-  const subject = 'Account Verification Token';
+  const subject = 'Farmlord Account Verification Token';
   const to = user.email;
-  const link = `http://${origin}/api/auth/verify/${token.token}`;
+  const link = `${protocol}://${host}/account/login?token=${token.token}`;
   const html = `<p>Hi ${user.firstName}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
 
@@ -24,7 +23,7 @@ async function sendVerificationEmail(user, host, origin) {
 // @access Public
 exports.register = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, role } = req.body;
 
     // Make sure this account doesn't already exist
     const user = await User.findOne({ email });
@@ -33,11 +32,10 @@ exports.register = async (req, res) => {
       return res.status(httpStatus.CONFLICT).json({ message: 'Account already exists' });
     }
 
-    const newUser = new User({ ...req.body, role: req.body.role });
+    const newUser = new User({ ...req.body, role });
     const addUser = await newUser.save();
 
-    const origin = req.get('origin');
-    await sendVerificationEmail(addUser, req.headers.host, origin);
+    await sendVerificationEmail(addUser, req.headers.host, req.protocol);
 
     return await res.status(httpStatus.CREATED).json({
       success: true,
@@ -88,43 +86,29 @@ exports.login = async (req, res) => {
 // @desc Verify token
 // @access Public
 exports.verify = async (req, res) => {
-  if (!req.params.token) {
-    const data = { message: 'We were unable to find a user for this token.' };
-    return res.status(httpStatus.BAD_REQUEST).json(data);
-  }
   try {
-    // Find a matching token
-    const token = await Token.findOne({ token: req.params.token });
+    const { token: emailToken } = req.params;
+    const token = await Token.findOne({ token: emailToken });
 
     if (!token) {
       return res
-        .status(httpStatus.BAD_REQUEST)
-        .json({ message: 'We were unable to find a valid token. Your token my have expired.' });
+        .status(httpStatus.UNAUTHORIZED)
+        .json({ message: 'Cannot verify your email. Your token my have expired.' });
     }
 
-    // If we found a token, find a matching user
-    return User.findOne({ _id: token.userId }, (err, user) => {
-      if (!user) {
-        const data = { message: 'We were unable to find a user for this token.' };
-        return res.status(httpStatus.BAD_REQUEST).json(data);
-      }
+    const user = await User.findOne({ _id: token.userId });
+    if (!user) {
+      return res
+        .status(httpStatus.UNAUTHORIZED)
+        .json({ message: 'Cannot verify your email. Your token my have expired.' });
+    }
+    user.isVerified = true;
+    await user.save();
+    await Token.findOneAndDelete({ token: token.token });
 
-      if (user.isVerified) {
-        const data = { message: 'This user has already been verified.' };
-        return res.status(httpStatus.BAD_REQUEST).json(data);
-      }
-
-      // Verify and save the user
-      user.isVerified = true;
-      return user.save((error) => {
-        if (error) {
-          return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
-        }
-
-        return res.status(httpStatus.OK).send('The account has been verified. Please log in.');
-      });
-    });
+    return res.status(httpStatus.OK).send('The account has been verified. Please log in.');
   } catch (error) {
+    console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };
@@ -139,8 +123,8 @@ exports.resendToken = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(httpStatus.UNAUTHORIZED).json({
-        message: 'Invalid login attempt'
+      return res.status(httpStatus.OK).json({
+        message: 'Confirmation email has been sent'
       });
     }
 
@@ -148,8 +132,7 @@ exports.resendToken = async (req, res) => {
       const data = { message: 'This account has already been verified. Please log in.' };
       return res.status(httpStatus.CONFLICT).json(data);
     }
-    const origin = req.get('origin');
-    await sendVerificationEmail(user, req.headers.host, origin);
+    await sendVerificationEmail(user, req.headers.host, req.protocol);
     return res.status(httpStatus.OK).send('Email sent');
   } catch (error) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });

@@ -15,7 +15,7 @@ describe('Auth Controller', () => {
   let newUser = {
     firstName: 'John',
     lastName: 'Wick',
-    role: 'landowner'
+    role: 'Landowner'
   };
   beforeEach(() => jest.clearAllMocks());
   // tests
@@ -30,9 +30,10 @@ describe('Auth Controller', () => {
     newUser.id = res.body.id;
   });
   it(`Register - existing user: should return ${httpStatus.CONFLICT} and confirmation for valid input`, async () => {
-    newUser = { ...userLogin, ...newUser };
+    const input = { ...userLogin, ...newUser };
+    delete input.id;
 
-    await request(app).post('/api/auth/register').send(newUser).expect(httpStatus.CONFLICT);
+    await request(app).post('/api/auth/register').send(input).expect(httpStatus.CONFLICT);
     // email sending should never be called!
     expect(util.sendEmail).toBeCalledTimes(0);
   });
@@ -40,13 +41,16 @@ describe('Auth Controller', () => {
     await request(app).post('/api/auth/login').send(userLogin).expect(httpStatus.UNAUTHORIZED);
   });
 
-  it(`VerifyEmail: Should return ${httpStatus.BAD_REQUEST} for incorrect token`, async () => {
-    await request(app).get('/api/auth/verify/12345').expect(httpStatus.BAD_REQUEST);
+  it(`VerifyEmail: Should return ${httpStatus.UNAUTHORIZED} for incorrect token`, async () => {
+    await request(app).get('/api/auth/verify/12345').expect(httpStatus.UNAUTHORIZED);
   });
 
   it(`VerifyEmail: Should return ${httpStatus.OK} for correct token`, async () => {
     const { token } = await Token.findOne({ userId: newUser.id });
     await request(app).get(`/api/auth/verify/${token}`).expect(httpStatus.OK);
+
+    const exist = await Token.findOne({ token });
+    expect(exist).toBeFalsy();
   });
 
   it(`Login: Should return ${httpStatus.OK} confirmed email`, async () => {
