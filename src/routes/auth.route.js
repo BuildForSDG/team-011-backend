@@ -10,11 +10,13 @@ const Password = require('../controllers/password.controller');
 const validate = require('../middlewares/validate');
 const genericHandler = require('../middlewares/route-handler');
 
-const loginDtoValidation = Joi.object({
-  email: Joi.string().email().max(32).required(),
-  password: Joi.string().min(6).required()
-}).unknown(false);
-
+const clientUrlValidation = Joi.object({ clientUrl: Joi.string().uri() });
+const loginDtoValidation = clientUrlValidation
+  .keys({
+    email: Joi.string().email().max(32).required(),
+    password: Joi.string().min(6).required()
+  })
+  .unknown(false);
 const registerDtoValidation = loginDtoValidation
   .keys({
     firstName: Joi.string().max(32).required(),
@@ -34,7 +36,7 @@ router.post('/register', celebrate({ [Segments.BODY]: registerDtoValidation }), 
 
 // EMAIL Verification
 router.get('/verify/:token', Auth.verify);
-router.post('/resend', Auth.resendToken);
+router.post('/resend', celebrate({ [Segments.BODY]: clientUrlValidation }), Auth.resendToken);
 
 // Password RESET
 router.post(
