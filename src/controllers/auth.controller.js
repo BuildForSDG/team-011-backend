@@ -4,17 +4,17 @@ const { User } = require('../models/user.model');
 const Token = require('../models/token');
 const { sendEmail } = require('../utils/index');
 
-async function sendVerificationEmail(user, host, protocol) {
+async function sendVerificationEmail(user, referer) {
   const token = user.generateVerificationToken();
 
   // Save the verification token
   await token.save();
   const subject = 'Farmlord Account Verification Token';
   const to = user.email;
-  const link = `${protocol}://${host}/account/login?token=${token.token}`;
+  const link = `${referer}?token=${token.token}`;
   const html = `<p>Hi ${user.firstName}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
-
+  console.log(link);
   sendEmail(to, { subject, html }, '');
 }
 
@@ -23,7 +23,7 @@ async function sendVerificationEmail(user, host, protocol) {
 // @access Public
 exports.register = async (req, res) => {
   try {
-    const { email, role } = req.body;
+    const { email, role, clientUrl } = req.body;
 
     // Make sure this account doesn't already exist
     const user = await User.findOne({ email });
@@ -34,8 +34,8 @@ exports.register = async (req, res) => {
 
     const newUser = new User({ ...req.body, role });
     const addUser = await newUser.save();
-
-    await sendVerificationEmail(addUser, req.headers.host, req.protocol);
+    const referer = clientUrl || req.headers.referer;
+    await sendVerificationEmail(addUser, referer);
 
     return await res.status(httpStatus.CREATED).json({
       success: true,
@@ -106,7 +106,7 @@ exports.verify = async (req, res) => {
     await user.save();
     await Token.findOneAndDelete({ token: token.token });
 
-    return res.status(httpStatus.OK).send('The account has been verified. Please log in.');
+    return res.status(httpStatus.OK).json({ message: 'The account has been verified. Please log in.' });
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
@@ -118,7 +118,7 @@ exports.verify = async (req, res) => {
 // @access Public
 exports.resendToken = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, clientUrl } = req.body;
 
     const user = await User.findOne({ email });
 
@@ -132,7 +132,9 @@ exports.resendToken = async (req, res) => {
       const data = { message: 'This account has already been verified. Please log in.' };
       return res.status(httpStatus.CONFLICT).json(data);
     }
-    await sendVerificationEmail(user, req.headers.host, req.protocol);
+    const referer = clientUrl || req.headers.referer;
+
+    await sendVerificationEmail(user, referer);
     return res.status(httpStatus.OK).send('Email sent');
   } catch (error) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
