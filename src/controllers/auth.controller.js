@@ -1,20 +1,25 @@
+/* eslint-disable no-console */
 const httpStatus = require('http-status-codes');
 
 const { User } = require('../models/user.model');
 const Token = require('../models/token');
 const { sendEmail } = require('../utils/index');
 
-async function sendVerificationEmail(user, referer) {
-  const token = user.generateVerificationToken();
-
+async function sendVerificationEmail(user, referer, prevToken) {
+  let token = prevToken;
+  if (!prevToken) {
+    const emailToken = user.generateVerificationToken();
+    await emailToken.save();
+    token = emailToken.token;
+  }
   // Save the verification token
-  await token.save();
+
   const subject = 'Farmlord Account Verification Token';
   const to = user.email;
-  const link = `${referer}?token=${token.token}`;
+  const link = `${referer}?token=${token}`;
   const html = `<p>Hi ${user.firstName}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
-  console.log(link);
+  if (process.env.NODE_ENV !== 'production') console.log(link);
   sendEmail(to, { subject, html }, '');
 }
 
@@ -118,8 +123,7 @@ exports.verify = async (req, res) => {
 // @access Public
 exports.resendToken = async (req, res) => {
   try {
-    const { email, clientUrl } = req.body;
-
+    const { email, clientUrl } = req.query;
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -133,10 +137,12 @@ exports.resendToken = async (req, res) => {
       return res.status(httpStatus.CONFLICT).json(data);
     }
     const referer = clientUrl || req.headers.referer;
+    const { token } = await Token.findOne({ userId: user.id });
 
-    await sendVerificationEmail(user, referer);
-    return res.status(httpStatus.OK).send('Email sent');
+    await sendVerificationEmail(user, referer, token);
+    return res.status(httpStatus.OK).json({ message: 'Email sent' });
   } catch (error) {
+    console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
   }
 };

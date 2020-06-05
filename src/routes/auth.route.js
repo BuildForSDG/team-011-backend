@@ -11,9 +11,13 @@ const validate = require('../middlewares/validate');
 const genericHandler = require('../middlewares/route-handler');
 
 const clientUrlValidation = Joi.object({ clientUrl: Joi.string().uri() });
-const loginDtoValidation = clientUrlValidation
+
+const sendEmailConfirmationValidation = clientUrlValidation.keys({
+  email: Joi.string().email().max(32).required()
+});
+
+const loginDtoValidation = sendEmailConfirmationValidation
   .keys({
-    email: Joi.string().email().max(32).required(),
     password: Joi.string().min(6).required()
   })
   .unknown(false);
@@ -36,7 +40,7 @@ router.post('/register', celebrate({ [Segments.BODY]: registerDtoValidation }), 
 
 // EMAIL Verification
 router.get('/verify/:token', Auth.verify);
-router.post('/resend', celebrate({ [Segments.BODY]: clientUrlValidation }), Auth.resendToken);
+router.get('/resend', celebrate({ [Segments.QUERY]: sendEmailConfirmationValidation }), Auth.resendToken);
 
 // Password RESET
 router.post(
