@@ -88,7 +88,6 @@ exports.getOneLand = async (req, res) => {
 exports.deleteLandDetail = async (req, res) => {
   try {
     const { landId } = req.params;
-    console.log(landId);
     await Land.findOneAndDelete({ _id: landId });
     await LandRequest.findOneAndDelete({ landId });
     return res.status(httpStatus.OK).json({ message: 'Land Property has been removed successfully' });

@@ -197,7 +197,10 @@ exports.getAllFarmerLandRequests = async (req, res) => {
       ...JSON.parse(query || '{}'),
       createdBy: req.user.id
     };
-    const landRequests = await LandRequest.find(condition, null, JSON.parse(opts || '{}'));
+    const landRequests = await LandRequest.find(condition, null, JSON.parse(opts || '{}'))
+      .populate({ path: 'landId', select: '-requests -__v' })
+      .populate({ path: 'landownerId', select: 'firstName lastName' })
+      .populate({ path: 'createdBy', select: 'firstName lastName' });
     return res.status(httpStatus.OK).json({
       totalCount: landRequests.length,
       items: landRequests
