@@ -7,7 +7,6 @@ const { celebrate, Segments } = require('celebrate');
 const User = require('../controllers/user.controller');
 const LandCtrl = require('../controllers/land.controller');
 const validate = require('../middlewares/validate');
-const LandRequest = require('../controllers/landrequest.controller');
 const roleMiddleware = require('../middlewares/role.middleware');
 const { UserRole } = require('../models/user.model');
 const { landUpdateDtoSchema } = require('../validations/land.schema');
