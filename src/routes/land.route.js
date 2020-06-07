@@ -29,8 +29,8 @@ router.get('/:landId/landRequests', LandReqCtrl.getLandLandRequests);
 router.post(
   '/',
   upload.single('photo'),
-  roleMiddleware({ allowedRoles: [UserRole.Admin, UserRole.Landowner] }),
   celebrate({ [Segments.BODY]: landDtoSchema }),
+  roleMiddleware({ allowedRoles: [UserRole.Admin, UserRole.Landowner] }),
   Land.createLand
 );
 
