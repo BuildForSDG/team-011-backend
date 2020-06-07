@@ -8,6 +8,8 @@ const { AuctionType, InstallmentType } = require('../src/models/land.model');
 const app = require('../src/app');
 const util = require('../src/utils/index');
 const { User } = require('../src/models/user.model');
+const { Land } = require('../src/models/land.model');
+const { LandRequest } = require('../src/models/landrequest.model');
 
 // mock utility functions
 jest.mock('../src/utils/index');
@@ -40,7 +42,7 @@ describe('Land Controller', () => {
     it(`should return ${httpStatus.UNAUTHORIZED} if user is not signed in`, async () =>
       request(app).post('/api/lands').send(newLand).expect(httpStatus.UNAUTHORIZED));
 
-    it(`should return ${httpStatus.FORBIDDEN} if user is NOT a Landowner`, async () => {
+    it(`should return ${httpStatus.FORBIDDEN} if user is NOT a Landowner posting`, async () => {
       // Login as Farmer
       accessToken = await getAccessToken({ ...userLogin, email: 'farmer@gmail.com' });
       await request(app)
@@ -82,6 +84,7 @@ describe('Land Controller', () => {
       expect(user.id).toBe(createdBy);
       expect(id).toBeDefined();
       newLand.id = id;
+      newLand.createdBy = createdBy;
     });
     it(`should return ${httpStatus.BAD_REQUEST} if a Landowner uploads non-image file`, async () => {
       const filePath = `${__dirname}/../README.md`;
@@ -103,15 +106,24 @@ describe('Land Controller', () => {
     });
     it(`should return ${httpStatus.BAD_REQUEST} if input is invalid`, async () => {
       // Still logged in as Landowner
-      const res = await request(app)
+      await request(app)
         .post('/api/lands')
         .set({ Authorization: `Bearer ${accessToken}` })
         .send()
         .expect(httpStatus.BAD_REQUEST);
+    });
+    it("should delete land and all it's associating request", async () => {
+      await request(app)
+        .delete(`/api/users/${newLand.createdBy}/lands/${newLand.id}`)
+        .set({ Authorization: `Bearer ${accessToken}` })
+        .send()
+        .expect(httpStatus.OK);
 
-      // assertions
-      expect(res.body).toBeTruthy();
-      newLand.id = res.body.id;
+      const land = await Land.findOne({ _id: newLand.id });
+      const reqs = await LandRequest.find({ landId: newLand.id });
+
+      expect(land).toBeFalsy();
+      expect(reqs.length).toBe(0);
     });
   });
 });

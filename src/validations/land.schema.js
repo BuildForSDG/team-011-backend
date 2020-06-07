@@ -1,11 +1,13 @@
 const Joi = require('@hapi/joi');
 Joi.objectId = require('joi-objectid')(Joi);
-const { AuctionType, InstallmentType } = require('../models/land.model');
+const { AuctionType, InstallmentType, LandStatus } = require('../models/land.model');
 
 const landDtoSchema = Joi.object({
   description: Joi.string().max(128),
   acres: Joi.number().greater(0).required(),
-  isAvailable: Joi.boolean().default(true),
+  status: Joi.string()
+    .valid(...Object.keys(LandStatus))
+    .default(LandStatus.AVAILABLE),
   shortLocation: Joi.string().max(32).required(),
   fullLocation: Joi.string().max(512).required(),
   price: Joi.number().greater(0).required(),

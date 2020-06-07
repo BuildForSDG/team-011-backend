@@ -2,7 +2,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable linebreak-style */
 const mongoose = require('mongoose');
-const { schema } = require('./landrequest.model.js');
 
 const AuctionType = {
   Lease: 'Lease',
@@ -15,15 +14,21 @@ const InstallmentType = {
   Weekly: 'Weekly',
   Daily: 'Daily'
 };
+const LandStatus = {
+  AVAILABLE: 'AVAILABLE',
+  OCCUPIED: 'OCCUPIED',
+  PENDING_PAYMENT: 'PENDING_PAYMENT'
+};
 const landSchema = mongoose
   .Schema(
     {
       description: { type: String, max: 128 },
       photo: { type: String },
-      isAvailable: { type: Boolean, default: true },
+      status: { type: LandStatus, default: LandStatus.AVAILABLE },
       shortLocation: { type: String, required: true, max: 32 },
       fullLocation: { type: String, required: true, max: 512 },
       acres: { type: Number, required: true },
+      occupant: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
       createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -50,6 +55,7 @@ const landSchema = mongoose
 const Land = mongoose.model('Land', landSchema);
 module.exports = {
   Land,
+  LandStatus,
   AuctionType,
   InstallmentType
 };

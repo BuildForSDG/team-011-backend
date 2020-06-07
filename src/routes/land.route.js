@@ -3,8 +3,6 @@ const multer = require('multer');
 const createHttpError = require('http-errors');
 const { celebrate, Segments } = require('celebrate');
 
-// const fileUpload = require('express-fileupload');
-
 const router = express.Router();
 
 const roleMiddleware = require('../middlewares/role.middleware');

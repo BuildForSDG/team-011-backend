@@ -39,21 +39,18 @@ describe('LandRequest Controller', () => {
   };
 
   const newLandRequest = {
-    landId: '',
-    landownerId: ''
+    landId: ''
   };
   let seededLand;
 
   beforeAll(async () => {
     seededLand = await seedLand();
     newLandRequest.landId = seededLand.id;
-    newLandRequest.landownerId = seededLand.createdBy;
   });
 
   beforeEach(() => jest.clearAllMocks());
 
   let token;
-  let userId;
   const landownerEmail = 'landowner@gmail.com';
   const farmerEmail = 'farmer@gmail.com';
 
@@ -70,21 +67,10 @@ describe('LandRequest Controller', () => {
         .expect(httpStatus.FORBIDDEN);
     });
 
-    it(`should return ${httpStatus.NOT_FOUND} if landownerId is invalid`, async () => {
-      // Login as farmer
-      const { accessToken } = await getAccessToken({ ...userLogin, email: farmerEmail });
-      const input = { ...newLandRequest, landownerId: newLandRequest.landId };
-
-      await request(app)
-        .post('/api/land_requests')
-        .set({ Authorization: `Bearer ${accessToken}` })
-        .send(input)
-        .expect(httpStatus.NOT_FOUND);
-    });
     it(`should return ${httpStatus.NOT_FOUND} if landId is invalid`, async () => {
       // Login as farmer
       const { accessToken } = await getAccessToken({ ...userLogin, email: farmerEmail });
-      const input = { ...newLandRequest, landId: newLandRequest.landownerId };
+      const input = { landId: seededLand.createdBy };
 
       await request(app)
         .post('/api/land_requests')
@@ -112,7 +98,6 @@ describe('LandRequest Controller', () => {
       expect(id).toBeDefined();
       newLandRequest.id = id;
       token = accessToken;
-      userId = user.id;
     });
 
     it(`should return ${httpStatus.BAD_REQUEST} if input is invalid`, async () => {
@@ -125,32 +110,32 @@ describe('LandRequest Controller', () => {
   });
 
   describe('Get Land Request', () => {
-    it(`should return ${httpStatus.FORBIDDEN} if landowner tries to get land request that isn't attached to their land`, async () => {
-      const { accessToken } = await getAccessToken({ ...userLogin, email: landownerEmail });
+    it(`should return ${httpStatus.FORBIDDEN} if non landowner tries to get request to a land`, async () => {
+      const { accessToken } = await getAccessToken({ ...userLogin, email: farmerEmail });
       await request(app)
-        .get(`/api/users/${userId}/land_requests`)
+        .get('/api/land_requests/requests_to_landowner')
         .set({ Authorization: `Bearer ${accessToken}` })
         .expect(httpStatus.FORBIDDEN);
     });
     it(`should return ${httpStatus.OK} if Landowner gets requests made to their lands`, async () => {
-      const { accessToken, id } = await getAccessToken({ ...userLogin, email: landownerEmail });
+      const { accessToken } = await getAccessToken({ ...userLogin, email: landownerEmail });
       await request(app)
-        .get(`/api/users/${id}/land_requests`)
+        .get('/api/land_requests/requests_to_landowner')
         .set({ Authorization: `Bearer ${accessToken}` })
         .expect(httpStatus.OK);
     });
 
-    it(`should return ${httpStatus.OK} if Farmer gets own land-request`, async () => {
-      const { accessToken, id } = await getAccessToken({ ...userLogin, email: farmerEmail });
+    it(`should return ${httpStatus.OK} if Farmer gets own land requests`, async () => {
+      const { accessToken } = await getAccessToken({ ...userLogin, email: farmerEmail });
       await request(app)
-        .get(`/api/users/${id}/land_requests`)
+        .get('/api/land_requests/farmer_land_requests')
         .set({ Authorization: `Bearer ${accessToken}` })
         .expect(httpStatus.OK);
     });
     it(`should return ${httpStatus.OK} if farmer deletes request and should also be removed from land`, async () => {
-      const { accessToken, id } = await getAccessToken({ ...userLogin, email: farmerEmail });
+      const { accessToken } = await getAccessToken({ ...userLogin, email: farmerEmail });
       await request(app)
-        .delete(`/api/users/${id}/land_requests/${newLandRequest.id}`)
+        .delete(`/api/land_requests/farmer_land_requests/${newLandRequest.id}`)
         .set({ Authorization: `Bearer ${accessToken}` })
         .expect(httpStatus.OK);
       const land = await Land.findOne({ _id: newLandRequest.landId });

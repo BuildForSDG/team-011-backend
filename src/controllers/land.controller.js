@@ -2,6 +2,7 @@
 /* eslint-disable max-len */
 const httpStatus = require('http-status-codes');
 const { Land } = require('../models/land.model');
+const { LandRequest } = require('../models/landrequest.model');
 
 const { uploadImgAndReturnUrl } = require('../utils/index');
 /**
@@ -38,9 +39,6 @@ exports.createLand = async (req, res) => {
  * @access Public
  */
 exports.modifyLandDetail = async (req, res) => {
-  // if (req.params.landOwnerId !== req.user.id) {
-  //   return res.status(httpStatus.FORBIDDEN).json({ message: "You don't have permission to modify this resource" });
-  // }
   try {
     const photo = req.file && (await uploadImgAndReturnUrl(req.file));
     const update = req.body;
@@ -90,8 +88,9 @@ exports.getOneLand = async (req, res) => {
 exports.deleteLandDetail = async (req, res) => {
   try {
     const { landId } = req.params;
+    console.log(landId);
     await Land.findOneAndDelete({ _id: landId });
-    await Land.findOneAndDelete({ landId });
+    await LandRequest.findOneAndDelete({ landId });
     return res.status(httpStatus.OK).json({ message: 'Land Property has been removed successfully' });
   } catch (error) {
     console.error(error);
@@ -108,9 +107,15 @@ exports.deleteLandDetail = async (req, res) => {
  */
 exports.getAllLand = async (req, res) => {
   try {
-    const { query, opts } = req.query;
-    const lands = await Land.find(JSON.parse(query), null, JSON.parse(opts));
-    const totalCount = await Land.countDocuments().exec();
+    const { query, opts, countQuery } = req.query;
+    console.log('getAllLand', req.query);
+    const lands = await Land.find(JSON.parse(query), null, JSON.parse(opts)).populate({
+      path: 'requests',
+      select: 'createdBy updatedAt createdAt status'
+    });
+    const totalCount = await Land.find(JSON.parse(countQuery || '{}'))
+      .countDocuments()
+      .exec();
     return res.status(httpStatus.OK).json({ totalCount, items: lands });
   } catch (error) {
     console.error(error);
@@ -125,7 +130,7 @@ exports.getAllLand = async (req, res) => {
  * @desc All LandOwners Land
  *  @access Public
  */
-exports.getAllLandOwnerLand = async (req, res) => {
+exports.getAllLandownerLands = async (req, res) => {
   try {
     const { query, opts } = req.query;
     console.log(req.query);

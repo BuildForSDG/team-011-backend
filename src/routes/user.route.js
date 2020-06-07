@@ -7,7 +7,6 @@ const { celebrate, Segments } = require('celebrate');
 const User = require('../controllers/user.controller');
 const LandCtrl = require('../controllers/land.controller');
 const validate = require('../middlewares/validate');
-const LandRequest = require('../controllers/landrequest.controller');
 const roleMiddleware = require('../middlewares/role.middleware');
 const { UserRole } = require('../models/user.model');
 const { landUpdateDtoSchema } = require('../validations/land.schema');
@@ -44,55 +43,20 @@ router.post(
 router.get('/:id', User.show);
 
 // Landowner Land Operations
-router.get('/:landOwnerId/lands', LandCtrl.getAllLandOwnerLand);
-router.get('/:landOwnerId/lands/:landId', LandCtrl.getOneLand);
+router.get('/:landownerId/lands', LandCtrl.getAllLandownerLands);
+router.get('/:landownerId/lands/:landId', LandCtrl.getOneLand);
 
 router.put(
-  '/:landOwnerId/lands/:landId',
+  '/:landownerId/lands/:landId',
   upload.single('photo'),
   celebrate({ [Segments.BODY]: landUpdateDtoSchema }),
-  roleMiddleware({ userIdParam: 'landOwnerId', allowedRoles: [UserRole.Landowner] }),
+  roleMiddleware({ userIdParam: 'landownerId', allowedRoles: [UserRole.Landowner] }),
   LandCtrl.modifyLandDetail
 );
 router.delete(
-  '/:landOwnerId/lands/:landId',
-  roleMiddleware({ userIdParam: 'landOwnerId', allowedRoles: [UserRole.Landowner] }),
+  '/:landownerId/lands/:landId',
+  roleMiddleware({ userIdParam: 'landownerId', allowedRoles: [UserRole.Landowner] }),
   LandCtrl.deleteLandDetail
-);
-
-// Landowner land-request operations
-router.get(
-  '/:landOwnerId/land_requests',
-  roleMiddleware({ userIdParam: 'landOwnerId' }),
-  LandRequest.getAllLandownerLandRequests
-);
-router.get(
-  '/:landOwnerId/land_requests/:requestId',
-  roleMiddleware({ userIdParam: 'landOwnerId' }),
-  LandRequest.getOneLandRequest
-);
-
-// Farmer land-request operations
-router.get(
-  '/:farmerId/land_requests',
-  roleMiddleware({ userIdParam: 'farmerId' }),
-  LandRequest.getAllFarmerLandRequests
-);
-router.get(
-  '/:farmerId/land_requests/:requestId',
-  roleMiddleware({ userIdParam: 'farmerId' }),
-  LandRequest.getOneLandRequest
-);
-
-router.put(
-  '/:farmerId/land_requests/:requestId',
-  roleMiddleware({ userIdParam: 'farmerId', allowedRoles: [UserRole.Farmer] }),
-  LandRequest.modifyLandRequest
-);
-router.delete(
-  '/:farmerId/land_requests/:requestId',
-  roleMiddleware({ userIdParam: 'farmerId', allowedRoles: [UserRole.Farmer] }),
-  LandRequest.deleteLandRequest
 );
 
 // UPDATE
