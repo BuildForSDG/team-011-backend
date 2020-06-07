@@ -1,9 +1,13 @@
 const Joi = require('@hapi/joi');
 Joi.objectId = require('joi-objectid')(Joi);
+const { LandRequestStatus } = require('../models/landrequest.model');
 
 const landReqDtoSchema = Joi.object({
-  landId: Joi.objectId().required(),
-  landownerId: Joi.objectId().required()
+  landId: Joi.objectId().required()
 }).unknown(false);
-
-module.exports = { landReqDtoSchema };
+const updateReqDtoSchema = Joi.object({
+  status: Joi.string()
+    .valid(...Object.keys(LandRequestStatus))
+    .default(LandRequestStatus.PENDING)
+}).unknown(false);
+module.exports = { landReqDtoSchema, updateReqDtoSchema };

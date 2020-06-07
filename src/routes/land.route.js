@@ -3,7 +3,7 @@ const multer = require('multer');
 const createHttpError = require('http-errors');
 const { celebrate, Segments } = require('celebrate');
 
-// const fileUpload = require('express-fileupload');
+const LandCtrl = require('../controllers/land.controller');
 
 const router = express.Router();
 

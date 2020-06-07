@@ -1,8 +1,9 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 const httpStatus = require('http-status-codes');
 const { LandRequest } = require('../models/landrequest.model');
-const { Land } = require('../models/land.model');
+const { Land, LandStatus } = require('../models/land.model');
 
 /**
  *CREATE A NEW LAND TOO BE LEASED OUT OR RENTED OUT
@@ -12,17 +13,19 @@ const { Land } = require('../models/land.model');
  */
 exports.createLandRequest = async (req, res) => {
   try {
-    const { id } = req.user;
-    const { landId, landownerId } = req.body;
+    const { landId } = req.body;
 
-    const land = await Land.findOne({ _id: landId, createdBy: landownerId });
+    const land = await Land.findOne({ _id: landId });
     if (!land) return res.status(httpStatus.NOT_FOUND).json({ message: 'Land your making request to does not exist' });
+    const request = await LandRequest.findOne({ landId, createdBy: req.user.id });
+    if (request) return res.status(httpStatus.CONFLICT).json({ message: 'Request already received' });
     const landRequest = new LandRequest({
-      createdBy: id,
-      ...req.body
+      createdBy: req.user.id,
+      landownerId: land.createdBy,
+      landId
     });
     const savedRequest = await landRequest.save();
-    land.requests.push(savedRequest.id);
+    if (land.requests.indexOf(savedRequest.id) < 0) land.requests.push(savedRequest.id);
     await land.save();
     const { _id, createdBy } = savedRequest;
     return res.status(httpStatus.CREATED).json({ id: _id, createdBy });
@@ -39,12 +42,12 @@ exports.createLandRequest = async (req, res) => {
  * @desc Get the details of a particular land
  * @access Public
  */
-exports.getOneLandRequest = async (req, res) => {
+exports.getOneFarmerLandRequest = async (req, res) => {
   try {
     const landRequest = await LandRequest.findOne({
       _id: req.params.id
     })
-      .populate('landId', 'price shortLocation', null, { sort: { createdAt: -1 } })
+      .populate('landId', 'price shortLocation status', null, { sort: { createdAt: -1 } })
       .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
     return res.status(httpStatus.OK).json({ message: landRequest });
   } catch (error) {
@@ -63,15 +66,20 @@ exports.getOneLandRequest = async (req, res) => {
 exports.modifyLandRequest = async (req, res) => {
   try {
     const update = req.body;
-    const { id } = req.params;
-
+    const { request_id } = req.params;
+    console.log(req.body, req.params);
     const landRequest = await LandRequest.findOneAndUpdate(
-      id,
-      { $set: update },
+      { _id: request_id },
+      { $set: { ...update, updatedBy: req.user.id } },
+      { new: true, useFindAndModify: false }
+    ).populate('landId', 'price shortLocation status');
+    const land = await Land.findOneAndUpdate(
+      { _id: landRequest.landId },
+      { $set: { status: LandStatus.PENDING_PAYMENT } },
       { new: true, useFindAndModify: false }
     );
-
-    return res.status(httpStatus.OK).json({ landRequest, message: 'LandRequest details has been updated' });
+    landRequest.landId.status = land.status;
+    return res.status(httpStatus.OK).json({ ...landRequest.toJSON() });
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -85,11 +93,11 @@ exports.modifyLandRequest = async (req, res) => {
  * @desc Delete  Land Request
  *  @access Public
  */
-exports.deleteLandRequest = async (req, res) => {
+exports.deleteFarmerLandRequest = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { request_id } = req.params;
+    const landReq = await LandRequest.findOneAndDelete({ _id: request_id });
 
-    const landReq = await LandRequest.findOneAndDelete(id);
     const land = await Land.findOne({ _id: landReq.landId });
     const removeIndex = land.requests.indexOf(landReq.id);
     land.requests.splice(removeIndex, 1);
@@ -111,7 +119,7 @@ exports.deleteLandRequest = async (req, res) => {
 exports.getAllLandRequests = async (_req, res) => {
   try {
     const landRequests = await LandRequest.find()
-      .populate('landId', 'price shortLocation', null, { sort: { createdAt: -1 } })
+      .populate('landId', 'price shortLocation status', null, { sort: { createdAt: -1 } })
       .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
 
     return res.status(httpStatus.OK).json({
@@ -131,7 +139,7 @@ exports.getLandLandRequests = async (req, res) => {
     const { query, opts } = req.query;
 
     const landRequests = await LandRequest.find({ ...JSON.parse(query), landId }, null, JSON.parse(opts))
-      .populate('landId', 'price shortLocation', null, { sort: { createdAt: -1 } })
+      .populate('landId', 'price shortLocation status', null, { sort: { createdAt: -1 } })
       .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
     const totalCount = await LandRequest.find({ landId }).countDocuments().exec();
 
@@ -154,11 +162,13 @@ exports.getLandLandRequests = async (req, res) => {
 exports.getAllLandownerLandRequests = async (req, res) => {
   try {
     const { query, opts } = req.query;
+    console.log('getAllLandownerLandRequests', req.query);
     const { id: landownerId } = req.user;
     const condition = { ...JSON.parse(query || '{}'), landownerId };
     const options = JSON.parse(opts || '{}');
+
     const landRequests = await LandRequest.find(condition, null, options)
-      .populate('landId', 'price shortLocation', null, { sort: { createdAt: -1 } })
+      .populate('landId', 'price shortLocation status', null, { sort: { createdAt: -1 } })
       .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
     const totalCount = await LandRequest.find({ landownerId }).countDocuments().exec();
 
@@ -181,12 +191,16 @@ exports.getAllLandownerLandRequests = async (req, res) => {
  */
 exports.getAllFarmerLandRequests = async (req, res) => {
   try {
-    const landRequests = await LandRequest.find({
-      createdBy: req.params.id
-    });
+    const { query, opts } = req.query;
+    console.log('getAllFarmerLandRequests', req.query);
+    const condition = {
+      ...JSON.parse(query || '{}'),
+      createdBy: req.user.id
+    };
+    const landRequests = await LandRequest.find(condition, null, JSON.parse(opts || '{}'));
     return res.status(httpStatus.OK).json({
-      message: 'Success',
-      landRequests
+      totalCount: landRequests.length,
+      items: landRequests
     });
   } catch (error) {
     console.error(error);

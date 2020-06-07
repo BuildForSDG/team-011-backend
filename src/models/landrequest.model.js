@@ -3,12 +3,18 @@
 /* eslint-disable linebreak-style */
 const mongoose = require('mongoose');
 
+const LandRequestStatus = {
+  DECLINED: 'DECLINED',
+  APPROVED: 'APPROVED',
+  PENDING: 'PENDING'
+};
+
 const landRequestSchema = mongoose
   .Schema(
     {
       landId: { type: mongoose.Schema.Types.ObjectId, ref: 'Land', required: true },
       landownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-      isAccepted: { type: Boolean, default: false },
+      status: { type: LandRequestStatus, default: LandRequestStatus.PENDING },
       createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -31,5 +37,6 @@ const landRequestSchema = mongoose
 const LandRequest = mongoose.model('LandRequest', landRequestSchema);
 module.exports = {
   LandRequest,
-  schema: landRequestSchema
+  schema: landRequestSchema,
+  LandRequestStatus
 };

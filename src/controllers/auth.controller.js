@@ -61,7 +61,7 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(httpStatus.UNAUTHORIZED).json({
         message: 'Invalid email or password'
