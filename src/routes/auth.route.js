@@ -1,14 +1,14 @@
-const express = require('express');
-const { check } = require('express-validator');
-const { celebrate, Segments } = require('celebrate');
+const express = require("express");
+const { check } = require("express-validator");
+const { celebrate, Segments } = require("celebrate");
 
-const Joi = require('@hapi/joi');
+const Joi = require("@hapi/joi");
 
-const { UserRole } = require('../models/user.model');
-const Auth = require('../controllers/auth.controller');
-const Password = require('../controllers/password.controller');
-const validate = require('../middlewares/validate');
-const genericHandler = require('../middlewares/route-handler');
+const { UserRole } = require("../models/user.model");
+const Auth = require("../controllers/auth.controller");
+const Password = require("../controllers/password.controller");
+const validate = require("../middlewares/validate");
+const genericHandler = require("../middlewares/route-handler");
 
 const clientUrlValidation = Joi.object({ clientUrl: Joi.string().uri() });
 
@@ -33,31 +33,31 @@ const registerDtoValidation = loginDtoValidation
 
 const router = express.Router();
 
-router.get('/', genericHandler);
+router.get("/", genericHandler);
 
-router.post('/login', celebrate({ [Segments.BODY]: loginDtoValidation }), validate, Auth.login);
-router.post('/register', celebrate({ [Segments.BODY]: registerDtoValidation }), Auth.register);
+router.post("/login", celebrate({ [Segments.BODY]: loginDtoValidation }), validate, Auth.login);
+router.post("/register", celebrate({ [Segments.BODY]: registerDtoValidation }), Auth.register);
 
 // EMAIL Verification
-router.get('/verify/:token', Auth.verify);
-router.get('/resend', celebrate({ [Segments.QUERY]: sendEmailConfirmationValidation }), Auth.resendToken);
+router.get("/verify/:token", Auth.verify);
+router.get("/resend", celebrate({ [Segments.QUERY]: sendEmailConfirmationValidation }), Auth.resendToken);
 
 // Password RESET
 router.post(
-  '/recover',
-  [check('email').isEmail().withMessage('Enter a valid email address')],
+  "/recover",
+  [check("email").isEmail().withMessage("Enter a valid email address")],
   validate,
   Password.recover
 );
 
-router.get('/reset/:token', Password.reset);
+router.get("/reset/:token", Password.reset);
 
 router.post(
-  '/reset/:token',
+  "/reset/:token",
   [
     // eslint-disable-next-line newline-per-chained-call
-    check('password').not().isEmpty().isLength({ min: 6 }).withMessage('Must be at least 6 chars long'),
-    check('confirmPassword', 'Passwords do not match').custom((value, { req }) => value === req.body.password)
+    check("password").not().isEmpty().isLength({ min: 6 }).withMessage("Must be at least 6 chars long"),
+    check("confirmPassword", "Passwords do not match").custom((value, { req }) => value === req.body.password)
   ],
   validate,
   Password.resetPassword

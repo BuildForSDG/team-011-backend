@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 /* eslint-disable max-len */
-const httpStatus = require('http-status-codes');
-const { Land, LandStatus } = require('../models/land.model');
-const { LandRequest } = require('../models/landrequest.model');
+const httpStatus = require("http-status-codes");
+const { Land, LandStatus } = require("../models/land.model");
+const { LandRequest } = require("../models/landrequest.model");
 
-const { uploadImgAndReturnUrl } = require('../utils/index');
+const { uploadImgAndReturnUrl } = require("../utils/index");
 /**
  *CREATE A NEW LAND TOO BE LEASED OUT OR RENTED OUT
  *@route POST api/lands
@@ -13,22 +13,21 @@ const { uploadImgAndReturnUrl } = require('../utils/index');
  */
 exports.createLand = async (req, res) => {
   try {
-    const photo = req.file && (await uploadImgAndReturnUrl(req.file));
     const { id } = req.user;
-    const photoUrl = (photo && photo.secure_url) || undefined;
     const land = new Land({
       createdBy: id,
       ...req.body
     });
-    land.photo = photoUrl;
-
+    if (req.file) {
+      const photo = await uploadImgAndReturnUrl(req.file);
+      land.photo = photo.secure_url;
+    }
     await land.save();
-
     return res.status(httpStatus.CREATED).json({ ...land.toJSON() });
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };
@@ -56,7 +55,7 @@ exports.modifyLandDetail = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };
@@ -75,7 +74,7 @@ exports.getOneLand = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };
@@ -95,11 +94,11 @@ exports.deleteLandDetail = async (req, res) => {
     // eslint-disable-next-line no-underscore-dangle
     await Land.deleteOne({ _id: land._id });
     await LandRequest.deleteMany({ landId }).exec();
-    return res.status(httpStatus.OK).json({ message: 'Land Property has been removed successfully' });
+    return res.status(httpStatus.OK).json({ message: "Land Property has been removed successfully" });
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };
@@ -112,19 +111,19 @@ exports.deleteLandDetail = async (req, res) => {
 exports.getAllLand = async (req, res) => {
   try {
     const { query, opts, countQuery } = req.query;
-    console.log('getAllLand', req.query);
+    console.log("getAllLand", req.query);
     const lands = await Land.find(JSON.parse(query), null, JSON.parse(opts)).populate({
-      path: 'requests',
-      select: 'createdBy updatedAt createdAt status'
+      path: "requests",
+      select: "createdBy updatedAt createdAt status"
     });
-    const totalCount = await Land.find(JSON.parse(countQuery || '{}'))
+    const totalCount = await Land.find(JSON.parse(countQuery || "{}"))
       .countDocuments()
       .exec();
     return res.status(httpStatus.OK).json({ totalCount, items: lands });
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'Error, an error has occurred, please check the error message for details'
+      message: "Error, an error has occurred, please check the error message for details"
     });
   }
 };
@@ -138,13 +137,13 @@ exports.getAllLandownerLands = async (req, res) => {
   try {
     const { query, opts } = req.query;
     console.log(req.query);
-    const lands = await Land.find(JSON.parse(query), null, JSON.parse(opts)).where('createdBy', req.user.id);
+    const lands = await Land.find(JSON.parse(query), null, JSON.parse(opts)).where("createdBy", req.user.id);
     const totalCount = await Land.countDocuments({ createdBy: req.user.id }).exec();
     return res.status(httpStatus.OK).json({ totalCount, items: lands });
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'Error, an error has occurred, please check the error message for details'
+      message: "Error, an error has occurred, please check the error message for details"
     });
   }
 };

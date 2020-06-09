@@ -3,7 +3,7 @@
 // generic route handler
 const genericHandler = (req, res, _next) => {
   res.json({
-    status: 'success',
+    status: "success",
     data: req.body
   });
 };

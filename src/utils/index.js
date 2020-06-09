@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-const Datauri = require('datauri');
-const path = require('path');
-const Mailgun = require('mailgun-js');
-const cloudinary = require('../config/cloudinary');
+const Datauri = require("datauri");
+const path = require("path");
+const Mailgun = require("mailgun-js");
+const cloudinary = require("../config/cloudinary");
 
 const mailgun = new Mailgun({
   apiKey: process.env.MAILGUN_API_KEY,

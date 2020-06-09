@@ -1,13 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const tokenSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'User'
+      ref: "User"
     },
 
     token: {
@@ -23,7 +23,7 @@ const tokenSchema = new mongoose.Schema(
     }
   },
   { timestamps: true }
-).set('toJSON', {
+).set("toJSON", {
   transform(doc, ret, options) {
     ret.id = ret._id;
     delete ret._id;
@@ -31,4 +31,4 @@ const tokenSchema = new mongoose.Schema(
   }
 });
 
-module.exports = mongoose.model('Tokens', tokenSchema);
+module.exports = mongoose.model("Tokens", tokenSchema);

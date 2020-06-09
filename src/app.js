@@ -1,12 +1,12 @@
 // export default appName;
-require('dotenv').config();
-const { errors } = require('celebrate');
+require("dotenv").config();
+const { errors } = require("celebrate");
 
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const passport = require('passport');
-const logger = require('morgan');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const passport = require("passport");
+const logger = require("morgan");
 
 // Setting up port
 const connUri = process.env.MONGO_URI;
@@ -15,7 +15,7 @@ const connUri = process.env.MONGO_URI;
 // Creating express app and configuring middleware needed for authentication
 const app = express();
 
-app.use(logger('dev'));
+app.use(logger("dev"));
 app.use(cors());
 
 app.use(express.json());
@@ -33,17 +33,17 @@ mongoose.connect(connUri, {
 });
 
 const { connection } = mongoose;
-connection.on('error', () => {
+connection.on("error", () => {
   process.exit();
 });
 
 //= == 3 - INITIALIZE PASSPORT MIDDLEWARE
 app.use(passport.initialize());
-require('./middlewares/jwt')(passport);
+require("./middlewares/jwt")(passport);
 
 //= == 4 - CONFIGURE ROUTES
 // Configure Route
-require('./routes/index')(app);
+require("./routes/index")(app);
 
 app.use(errors());
 module.exports = app;

@@ -1,4 +1,4 @@
-const app = require('./app.js');
+const app = require("./app.js");
 
 const server = app.listen(process.env.PORT || 1234, () => {
   const { port } = server.address();

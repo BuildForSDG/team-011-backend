@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
 /* eslint-disable max-len */
-const httpStatus = require('http-status-codes');
-const { LandRequest } = require('../models/landrequest.model');
-const { Land, LandStatus } = require('../models/land.model');
+const httpStatus = require("http-status-codes");
+const { LandRequest } = require("../models/landrequest.model");
+const { Land, LandStatus } = require("../models/land.model");
 
 /**
  *CREATE A NEW LAND TOO BE LEASED OUT OR RENTED OUT
@@ -11,14 +11,15 @@ const { Land, LandStatus } = require('../models/land.model');
  *@desc Add a New Land Properety to be bidded for or sold to farmers
  *@access Private
  */
+// eslint-disable-next-line complexity
 exports.createLandRequest = async (req, res) => {
   try {
     const { landId } = req.body;
 
     const land = await Land.findOne({ _id: landId });
-    if (!land) return res.status(httpStatus.NOT_FOUND).json({ message: 'Land your making request to does not exist' });
+    if (!land) return res.status(httpStatus.NOT_FOUND).json({ message: "Land your making request to does not exist" });
     const request = await LandRequest.findOne({ landId, createdBy: req.user.id });
-    if (request) return res.status(httpStatus.CONFLICT).json({ message: 'Request already received' });
+    if (request) return res.status(httpStatus.CONFLICT).json({ message: "Request already received" });
     const landRequest = new LandRequest({
       createdBy: req.user.id,
       landownerId: land.createdBy,
@@ -32,7 +33,7 @@ exports.createLandRequest = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };
@@ -47,13 +48,13 @@ exports.getOneFarmerLandRequest = async (req, res) => {
     const landRequest = await LandRequest.findOne({
       _id: req.params.id
     })
-      .populate('landId', 'price shortLocation status', null, { sort: { createdAt: -1 } })
-      .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
+      .populate("landId", "price shortLocation status", null, { sort: { createdAt: -1 } })
+      .populate("createdBy", "firstName lastName", null, { sort: { createdAt: -1 } });
     return res.status(httpStatus.OK).json({ message: landRequest });
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };
@@ -72,7 +73,7 @@ exports.modifyLandRequest = async (req, res) => {
       { _id: request_id },
       { $set: { ...update, updatedBy: req.user.id } },
       { new: true, useFindAndModify: false }
-    ).populate('landId', 'price shortLocation status');
+    ).populate("landId", "price shortLocation status");
     const land = await Land.findOneAndUpdate(
       { _id: landRequest.landId },
       { $set: { status: LandStatus.PENDING_PAYMENT } },
@@ -83,7 +84,7 @@ exports.modifyLandRequest = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };
@@ -102,11 +103,11 @@ exports.deleteFarmerLandRequest = async (req, res) => {
     const removeIndex = land.requests.indexOf(landReq.id);
     land.requests.splice(removeIndex, 1);
     await land.save();
-    return res.status(httpStatus.OK).json({ message: 'Land Property has been removed successfully' });
+    return res.status(httpStatus.OK).json({ message: "Land Property has been removed successfully" });
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };
@@ -119,17 +120,17 @@ exports.deleteFarmerLandRequest = async (req, res) => {
 exports.getAllLandRequests = async (_req, res) => {
   try {
     const landRequests = await LandRequest.find()
-      .populate('landId', 'price shortLocation status', null, { sort: { createdAt: -1 } })
-      .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
+      .populate("landId", "price shortLocation status", null, { sort: { createdAt: -1 } })
+      .populate("createdBy", "firstName lastName", null, { sort: { createdAt: -1 } });
 
     return res.status(httpStatus.OK).json({
-      message: 'Success',
+      message: "Success",
       landRequests
     });
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };
@@ -139,8 +140,8 @@ exports.getLandLandRequests = async (req, res) => {
     const { query, opts } = req.query;
 
     const landRequests = await LandRequest.find({ ...JSON.parse(query), landId }, null, JSON.parse(opts))
-      .populate('landId', 'price shortLocation status', null, { sort: { createdAt: -1 } })
-      .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
+      .populate("landId", "price shortLocation status", null, { sort: { createdAt: -1 } })
+      .populate("createdBy", "firstName lastName", null, { sort: { createdAt: -1 } });
     const totalCount = await LandRequest.find({ landId }).countDocuments().exec();
 
     return res.status(httpStatus.OK).json({
@@ -150,7 +151,7 @@ exports.getLandLandRequests = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };
@@ -162,14 +163,14 @@ exports.getLandLandRequests = async (req, res) => {
 exports.getAllLandownerLandRequests = async (req, res) => {
   try {
     const { query, opts } = req.query;
-    console.log('getAllLandownerLandRequests', req.query);
+    console.log("getAllLandownerLandRequests", req.query);
     const { id: landownerId } = req.user;
-    const condition = { ...JSON.parse(query || '{}'), landownerId };
-    const options = JSON.parse(opts || '{}');
+    const condition = { ...JSON.parse(query || "{}"), landownerId };
+    const options = JSON.parse(opts || "{}");
 
     const landRequests = await LandRequest.find(condition, null, options)
-      .populate('landId', 'price shortLocation status', null, { sort: { createdAt: -1 } })
-      .populate('createdBy', 'firstName lastName', null, { sort: { createdAt: -1 } });
+      .populate("landId", "price shortLocation status", null, { sort: { createdAt: -1 } })
+      .populate("createdBy", "firstName lastName", null, { sort: { createdAt: -1 } });
     const totalCount = await LandRequest.find({ landownerId }).countDocuments().exec();
 
     return res.status(httpStatus.OK).json({
@@ -179,7 +180,7 @@ exports.getAllLandownerLandRequests = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };
@@ -192,15 +193,15 @@ exports.getAllLandownerLandRequests = async (req, res) => {
 exports.getAllFarmerLandRequests = async (req, res) => {
   try {
     const { query, opts } = req.query;
-    console.log('getAllFarmerLandRequests', req.query);
+    console.log("getAllFarmerLandRequests", req.query);
     const condition = {
-      ...JSON.parse(query || '{}'),
+      ...JSON.parse(query || "{}"),
       createdBy: req.user.id
     };
-    const landRequests = await LandRequest.find(condition, null, JSON.parse(opts || '{}'))
-      .populate({ path: 'landId', select: '-requests -__v' })
-      .populate({ path: 'landownerId', select: 'firstName lastName' })
-      .populate({ path: 'createdBy', select: 'firstName lastName' });
+    const landRequests = await LandRequest.find(condition, null, JSON.parse(opts || "{}"))
+      .populate({ path: "landId", select: "-requests -__v" })
+      .populate({ path: "landownerId", select: "firstName lastName" })
+      .populate({ path: "createdBy", select: "firstName lastName" });
     return res.status(httpStatus.OK).json({
       totalCount: landRequests.length,
       items: landRequests
@@ -208,7 +209,7 @@ exports.getAllFarmerLandRequests = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'An error has occurred'
+      message: "An error has occurred"
     });
   }
 };

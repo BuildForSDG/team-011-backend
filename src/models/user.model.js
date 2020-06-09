@@ -1,17 +1,17 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
 /* eslint-disable func-names */
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
-const Token = require('./token');
+const Token = require("./token");
 
 const UserRole = {
-  Landowner: 'Landowner',
-  Farmer: 'Farmer',
-  Admin: 'Admin'
+  Landowner: "Landowner",
+  Farmer: "Farmer",
+  Admin: "Admin"
 };
 
 const UserSchema = new mongoose.Schema(
@@ -19,7 +19,7 @@ const UserSchema = new mongoose.Schema(
     email: {
       type: String,
       unique: true,
-      required: 'Your email is required',
+      required: "Your email is required",
       lowercase: true,
       maxlength: 64,
       trim: true
@@ -27,20 +27,20 @@ const UserSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: 'Your password is required',
+      required: "Your password is required",
       maxlength: 100
     },
 
     firstName: {
       type: String,
-      required: 'First Name is required',
+      required: "First Name is required",
       trim: true,
       maxlength: 64
     },
 
     lastName: {
       type: String,
-      required: 'Last Name is required',
+      required: "Last Name is required",
       trim: true,
       maxlength: 64
     },
@@ -99,7 +99,7 @@ const UserSchema = new mongoose.Schema(
     }
   },
   { timestamps: true }
-).set('toJSON', {
+).set("toJSON", {
   transform(doc, ret, options) {
     ret.id = ret._id;
     delete ret._id;
@@ -107,10 +107,10 @@ const UserSchema = new mongoose.Schema(
   }
 });
 
-UserSchema.pre('save', function (next) {
+UserSchema.pre("save", function (next) {
   const user = this;
 
-  if (!user.isModified('password')) return next();
+  if (!user.isModified("password")) return next();
 
   return bcrypt.genSalt(10, (err, salt) => {
     if (err) return next(err);
@@ -145,7 +145,7 @@ UserSchema.methods.generateJWT = function () {
 };
 
 UserSchema.methods.generatePasswordReset = function () {
-  this.resetPasswordToken = crypto.randomBytes(20).toString('hex');
+  this.resetPasswordToken = crypto.randomBytes(20).toString("hex");
   this.resetPasswordExpires = Date.now() + 3600000; // expires in an hour
 };
 
@@ -153,13 +153,13 @@ UserSchema.methods.generateVerificationToken = function () {
   const payload = {
     // eslint-disable-next-line no-underscore-dangle
     userId: this._id,
-    token: crypto.randomBytes(20).toString('hex')
+    token: crypto.randomBytes(20).toString("hex")
   };
 
   return new Token(payload);
 };
 
 module.exports = {
-  User: mongoose.model('User', UserSchema),
+  User: mongoose.model("User", UserSchema),
   UserRole
 };
