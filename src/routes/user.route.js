@@ -3,6 +3,8 @@ const { check } = require('express-validator');
 const multer = require('multer');
 const createHttpError = require('http-errors');
 const { celebrate, Segments } = require('celebrate');
+const Joi = require('@hapi/joi');
+Joi.objectId = require('joi-objectid')(Joi);
 
 const User = require('../controllers/user.controller');
 const LandCtrl = require('../controllers/land.controller');
@@ -23,6 +25,19 @@ const upload = multer({
     }
   }
 });
+
+const updateUserDto = Joi.object({
+  firstName: Joi.string().trim().max(64).required(),
+  lastName: Joi.string().trim().max(64).required(),
+  postalCode: Joi.string().max(12).regex(/^\d+$/),
+  city: Joi.string().trim().max(64).required(),
+  country: Joi.string().trim().max(64).required(),
+  phoneNumber: Joi.string().trim().max(32).required(),
+  description: Joi.string().trim().max(255).required(),
+  address: Joi.string().trim().max(255).required(),
+  profileImage: Joi.any()
+}).unknown(false);
+
 // INDEX
 router.get('/', User.grantAccess('readAny', 'profile'), User.index);
 
@@ -60,7 +75,13 @@ router.delete(
 );
 
 // UPDATE
-router.put('/:id', User.grantAccess('updateAny', 'profile'), upload.single('profileImage'), User.update);
+router.put(
+  '/:id',
+  upload.single('profileImage'),
+  celebrate({ [Segments.BODY]: updateUserDto }),
+  User.grantAccess('updateOwn', 'profile'),
+  User.update
+);
 
 // DELETE
 router.delete('/:id', User.grantAccess('deleteAny', 'profile'), User.destroy);
