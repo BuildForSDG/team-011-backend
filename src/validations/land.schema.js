@@ -1,6 +1,6 @@
-const Joi = require('@hapi/joi');
-Joi.objectId = require('joi-objectid')(Joi);
-const { AuctionType, InstallmentType, LandStatus } = require('../models/land.model');
+const Joi = require("@hapi/joi");
+Joi.objectId = require("joi-objectid")(Joi);
+const { AuctionType, InstallmentType, LandStatus } = require("../models/land.model");
 
 const landDtoSchema = Joi.object({
   description: Joi.string().max(128),

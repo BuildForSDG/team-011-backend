@@ -1,6 +1,6 @@
-const Joi = require('@hapi/joi');
-Joi.objectId = require('joi-objectid')(Joi);
-const { LandRequestStatus } = require('../models/landrequest.model');
+const Joi = require("@hapi/joi");
+Joi.objectId = require("joi-objectid")(Joi);
+const { LandRequestStatus } = require("../models/landrequest.model");
 
 const landReqDtoSchema = Joi.object({
   landId: Joi.objectId().required()

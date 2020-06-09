@@ -1,5 +1,5 @@
-const { validationResult } = require('express-validator');
-const httpStatus = require('http-status-codes');
+const { validationResult } = require("express-validator");
+const httpStatus = require("http-status-codes");
 
 module.exports = (req, res, next) => {
   const errors = validationResult(req);
