@@ -1,19 +1,19 @@
-const dbHelper = require('./helpers/db-helper');
-const { User, UserRole } = require('../src/models/user.model');
+const dbHelper = require("./helpers/db-helper");
+const { User, UserRole } = require("../src/models/user.model");
 
 jest.setTimeout(15000); // in milliseconds
 
 async function seedDbWithUsers() {
   const landowner = {
-    firstName: 'user',
-    lastName: 'user',
+    firstName: "user",
+    lastName: "user",
     role: UserRole.Landowner,
-    email: 'landowner@gmail.com',
-    password: '123456',
+    email: "landowner@gmail.com",
+    password: "123456",
     isVerified: true
   };
-  const farmer = { ...landowner, email: 'farmer@gmail.com', role: UserRole.Farmer };
-  const admin = { ...landowner, email: 'admin@gmail.com', role: UserRole.Admin };
+  const farmer = { ...landowner, email: "farmer@gmail.com", role: UserRole.Farmer };
+  const admin = { ...landowner, email: "admin@gmail.com", role: UserRole.Admin };
   await new User(landowner).save();
   await new User(farmer).save();
   await new User(admin).save();

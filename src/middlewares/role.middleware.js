@@ -5,7 +5,7 @@ const httpStatus = require("http-status-codes");
 module.exports = ({ userIdParam, allowedRoles }) => (req, res, next) => {
   try {
     const { role } = req.user;
-    if (userIdParam && req.params[userIdParam] !== req.user.id) {
+    if (userIdParam && req.params[`${userIdParam}`] !== req.user.id) {
       return res.status(httpStatus.FORBIDDEN).json({ message: "Access denied" });
     }
     if (!allowedRoles) return next();
