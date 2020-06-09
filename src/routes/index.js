@@ -3,11 +3,16 @@ const user = require("./user.route");
 const land = require("./land.route");
 const landrequest = require("./landrequest.route");
 const paymentRoute = require("./payment.route");
-const genericHandler = require("../middlewares/route-handler");
+// const genericHandler = require("../middlewares/route-handler");
 const authenticate = require("../middlewares/authenticate");
 
 module.exports = (app) => {
-  app.get("/", genericHandler);
+  app.get("/", (req, res) => {
+    res.json({
+      status: "success",
+      data: req.body
+    });
+  });
 
   app.use("/api/auth", auth);
   app.use("/api/users", authenticate, user);

@@ -8,7 +8,7 @@ const { UserRole } = require("../models/user.model");
 const Auth = require("../controllers/auth.controller");
 const Password = require("../controllers/password.controller");
 const validate = require("../middlewares/validate");
-const genericHandler = require("../middlewares/route-handler");
+// const genericHandler = require("../middlewares/route-handler");
 
 const clientUrlValidation = Joi.object({ clientUrl: Joi.string().uri() });
 
@@ -33,7 +33,12 @@ const registerDtoValidation = loginDtoValidation
 
 const router = express.Router();
 
-router.get("/", genericHandler);
+router.get("/", (req, res) => {
+  res.json({
+    status: "success",
+    data: req.body
+  });
+});
 
 router.post("/login", celebrate({ [Segments.BODY]: loginDtoValidation }), validate, Auth.login);
 router.post("/register", celebrate({ [Segments.BODY]: registerDtoValidation }), Auth.register);

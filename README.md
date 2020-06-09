@@ -6,7 +6,7 @@ This application is an innovative solution for connecting subsistent farmers to 
 
 Below is a use case flow of the application
 
-![FarmLord Use Case](docs/use-case.jpg 'FarmLord Use Case')
+![FarmLord Use Case](docs/use-case.jpg "FarmLord Use Case")
 
 ## Why
 
@@ -44,7 +44,7 @@ All tests should be written in the `**tests**' folder. There's a sample in there
 
 This starter uses [Parcel](https://parceljs.org/getting_started.html) as the bundler. It is much simpler that WebPack and the others
 
-#### Hints
+### Hints
 
 - Run `yarn install` to get started.
 - Install additional dependencies: `yarn add <dependency-name> [-D]`
@@ -68,10 +68,9 @@ The team members of this project are;
 If this project sounds interesting to you and you'd like to contribute, thank you!
 First, you can send a mail to buildforsdg@andela.com to indicate your interest, why you'd like to support and what forms of support you can bring to the table, but here are areas we think we'd need the most help in this project :
 
-1.  area one (e.g this app is about human trafficking and you need feedback on your road-map and feature list from the private sector / NGOs)
-2.  area two (e.g you want people to opt-in and try using your staging app at staging.project-name.com and report any bugs via a form)
-3.  area three (e.g here is the zoom link to our end-of sprint webinar, join and provide feedback as a stakeholder if you can)
-
+1. area one (e.g this app is about human trafficking and you need feedback on your road-map and feature list from the private sector / NGOs)
+2. area two (e.g you want people to opt-in and try using your staging app at staging.project-name.com and report any bugs via a form)
+3. area three (e.g here is the zoom link to our end-of sprint webinar, join and provide feedback as a stakeholder if you can)
 
 ## LICENSE
 
