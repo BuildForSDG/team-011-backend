@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-unused-vars */
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
@@ -19,33 +21,63 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       required: 'Your email is required',
       lowercase: true,
+      maxlength: 64,
       trim: true
     },
 
     password: {
       type: String,
       required: 'Your password is required',
-      max: 100
+      maxlength: 100
     },
 
     firstName: {
       type: String,
       required: 'First Name is required',
-      max: 100
+      trim: true,
+      maxlength: 64
     },
 
     lastName: {
       type: String,
       required: 'Last Name is required',
-      max: 100
+      trim: true,
+      maxlength: 64
     },
 
     profileImage: {
-      type: String,
-      required: false,
-      max: 255
+      type: String
     },
-
+    description: {
+      type: String,
+      trim: true,
+      maxlength: 255
+    },
+    address: {
+      type: String,
+      trim: true,
+      maxlength: 255
+    },
+    country: {
+      type: String,
+      trim: true,
+      maxlength: 64
+    },
+    city: {
+      type: String,
+      trim: true,
+      maxlength: 64
+    },
+    phoneNumber: {
+      type: String,
+      trim: true,
+      maxlength: 32
+    },
+    postalCode: {
+      type: String,
+      trim: true,
+      maxlength: 12
+    },
     isVerified: {
       type: Boolean,
       default: false
@@ -67,7 +99,13 @@ const UserSchema = new mongoose.Schema(
     }
   },
   { timestamps: true }
-);
+).set('toJSON', {
+  transform(doc, ret, options) {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+  }
+});
 
 UserSchema.pre('save', function (next) {
   const user = this;

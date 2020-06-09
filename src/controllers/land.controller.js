@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 const httpStatus = require('http-status-codes');
-const { Land } = require('../models/land.model');
+const { Land, LandStatus } = require('../models/land.model');
 const { LandRequest } = require('../models/landrequest.model');
 
 const { uploadImgAndReturnUrl } = require('../utils/index');
@@ -88,8 +88,13 @@ exports.getOneLand = async (req, res) => {
 exports.deleteLandDetail = async (req, res) => {
   try {
     const { landId } = req.params;
-    await Land.findOneAndDelete({ _id: landId });
-    await LandRequest.findOneAndDelete({ landId });
+    const land = await Land.findOne({ _id: landId });
+    if (land.status === LandStatus.OCCUPIED) {
+      return res.status(httpStatus.METHOD_NOT_ALLOWED).json({ message: "You can't delete an occupied land" });
+    }
+    // eslint-disable-next-line no-underscore-dangle
+    await Land.deleteOne({ _id: land._id });
+    await LandRequest.deleteMany({ landId }).exec();
     return res.status(httpStatus.OK).json({ message: 'Land Property has been removed successfully' });
   } catch (error) {
     console.error(error);

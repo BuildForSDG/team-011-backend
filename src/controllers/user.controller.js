@@ -1,8 +1,9 @@
+/* eslint-disable no-console */
 const httpStatus = require('http-status-codes');
 
 const { User } = require('../models/user.model');
 const { sendEmail } = require('../utils/index');
-const { uploader } = require('../utils/index');
+const { uploadImgAndReturnUrl } = require('../utils/index');
 const { roles } = require('../utils/permissions');
 
 // @route POST api/auth/recover
@@ -37,7 +38,8 @@ exports.recover = async (req, res) => {
 
     return res.status(httpStatus.OK).json({ message: `A reset email has been sent to ${user.email}.` });
   } catch (error) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'An error has occured' });
   }
 };
 
@@ -59,7 +61,8 @@ exports.reset = async (req, res) => {
     // Redirect user to form with the email address
     return res.render('reset', { user });
   } catch (error) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'An error has occured' });
   }
 };
 
@@ -96,7 +99,8 @@ exports.resetPassword = async (req, res) => {
 
     return res.status(httpStatus.OK).json({ message: 'Your password has been updated.' });
   } catch (error) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'An error has occured' });
   }
 };
 
@@ -152,7 +156,8 @@ exports.store = async (req, res) => {
 
     return res.status(httpStatus.OK).json({ message: `An email has been sent to ${user.email}.` });
   } catch (error) {
-    const data = { success: false, message: error.message };
+    console.error(error);
+    const data = { success: false, message: 'An error has occured' };
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json(data);
   }
 };
@@ -168,9 +173,12 @@ exports.show = async (req, res) => {
 
     if (!user) return res.status(httpStatus.UNAUTHORIZED).json({ message: 'User does not exist' });
 
-    return res.status(httpStatus.OK).json({ user });
+    delete user.password;
+
+    return res.status(httpStatus.OK).json({ ...user.toJSON() });
   } catch (error) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'An error has occured' });
   }
 };
 
@@ -180,33 +188,19 @@ exports.show = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const update = req.body;
-    const { id } = req.params;
-
-    // const { userId } = req;
-
-    // Make sure the passed id is that of the logged in user
-    // if (userId.toString() !== id.toString()) return res.status(httpStatus.UNAUTHORIZED).json({
-    //  message: 'Sorry, you don\'\t have the permission to update this data.' });
-
-    const user = await User.findByIdAndUpdate(id, { $set: update }, { new: true });
-
-    // if there is no image, return success message
-    if (!req.file) {
-      return res.status(httpStatus.OK).json({ user, message: 'User has been updated' });
-    }
-
     // Attempt to upload to cloudinary
-    const result = await uploader(req);
-    const userDetails = await User.findByIdAndUpdate(
-      id,
-      { $set: update },
-      { $set: { profileImage: result.url } },
-      { new: true }
-    );
+    const photo = req.file && (await uploadImgAndReturnUrl(req.file));
+    if (photo) update.profileImage = photo && photo.secure_url;
+    else delete update.profileImage;
+    const { id } = req.user;
+    const opt = { new: true, useFindAndModify: true };
+    const user = await User.findByIdAndUpdate({ _id: id }, { $set: update }, opt);
+    user.password = undefined;
 
-    return res.status(httpStatus.OK).json({ user: userDetails, message: 'User has been updated' });
+    return res.status(httpStatus.OK).json({ ...user.toJSON() });
   } catch (error) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'An error has occured' });
   }
 };
 
@@ -221,13 +215,14 @@ exports.destroy = async (req, res) => {
     // Make sure the passed id is that of the logged in user
     if (userId.toString() !== id.toString()) {
       return res
-        .status(httpStatus.UNAUTHORIZED)
+        .status(httpStatus.FORBIDDEN)
         .json({ message: "Sorry, you don't have the permission to delete this data." });
     }
     await User.findByIdAndDelete(id);
     return res.status(httpStatus.OK).json({ message: 'User has been deleted' });
   } catch (error) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message });
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'An error has occured' });
   }
 };
 
@@ -236,8 +231,8 @@ exports.grantAccess = function accessCheck(action, resource) {
     try {
       const permission = roles.can(req.user.role)[action](resource);
       if (!permission.granted) {
-        return res.status(httpStatus.UNAUTHORIZED).json({
-          error: "You don't have enough permission to perform this action"
+        return res.status(httpStatus.FORBIDDEN).json({
+          message: "You don't have enough permission to perform this action"
         });
       }
       return next();
