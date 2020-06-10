@@ -1,4 +1,4 @@
-## About
+# Farmlord
 
 This application is an innovative solution for connecting subsistent farmers to land owners. It offers the farmers the opportunity to rent the lands or lease at affordable prices. We've built a solution that will help Farmers maximize their productivity and output every harvest by providing the most important resource every Farmer needs - Farmland Real Estate. Landowners that own Farmlands that laying unutilized benefits from this solution simply by enrolling on the platform and making their farmlands available in a virtual market. The whole process entails four simple steps
 
@@ -14,7 +14,7 @@ The solution is necessary because many people who wish to farm do not have infor
 
 ## Usage
 
-The solution consist majorly of for stepss
+The solution consist majorly of for steps
 
 ### 1. Farmlands
 
