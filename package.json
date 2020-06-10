@@ -1,23 +1,26 @@
 {
-  "name": "js-starter",
+  "name": "farmlord",
   "version": "0.0.1",
-  "description": "A boilerplate for starting js code",
+  "description": "An application that connect Farmer to Landowners",
   "keywords": [
-    "js-starter",
-    "boilerplate"
+    "node",
+    "jest"
   ],
   "private": false,
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "server.js",
   "directories": {
-    "test": "__tests__"
+    "test": "tests"
   },
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cover": "jest --coverage",
+    "prebuild": "rimraf dist .cache coverage",
+    "test": "jest --detectOpenHandles",
+    "test:watch": "jest --watch --detectOpenHandles",
+    "test:cover": "jest --coverage --detectOpenHandles",
     "lint": "eslint \"src/**/*.js\"",
-    "start": "parcel ./src/index.html"
+    "build": "parcel build src/server.js --target=node --no-source-maps",
+    "watch": "parcel watch src/server.js --target=node",
+    "start:dev": "nodemon src/server.js",
+    "start": "node dist/server.js"
   },
   "author": {
     "name": "Build For SDG",
@@ -32,7 +35,32 @@
     "url": "https://github.com/BuildForSDG/js-starter/issues"
   },
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "@hapi/joi": "^17.1.1",
+    "@sendgrid/mail": "^7.1.0",
+    "accesscontrol": "^2.2.1",
+    "bcrypt": "^4.0.1",
+    "celebrate": "^12.1.1",
+    "cloudinary": "^1.21.0",
+    "cors": "^2.8.5",
+    "datauri": "^2.0.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.4.1",
+    "http-errors": "^1.7.3",
+    "http-status-codes": "^1.4.0",
+    "jade": "^1.11.0",
+    "joi-objectid": "^3.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.15",
+    "mailgun-js": "0.5",
+    "mongoose": "^5.9.11",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2",
+    "parcel-bundler": "^1.12.4",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.5",
@@ -40,8 +68,11 @@
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.2",
-    "jest": "^25.4.0",
-    "parcel-bundler": "^1.12.4"
+    "jest": "^25.5.4",
+    "mongodb-memory-server": "^6.5.2",
+    "mongodb-memory-server-global": "^6.5.2",
+    "nodemon": "^2.0.3",
+    "supertest": "^4.0.2"
   },
   "browserslist": [
     "last 1 Chrome versions"
