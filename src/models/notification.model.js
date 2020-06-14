@@ -1,18 +1,15 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
 const mongoose = require("mongoose");
-const paymentSchema = mongoose
+
+const notificationSchema = mongoose
   .Schema(
     {
-      land: {
+      title: { type: String, required: true },
+      to: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: "Land"
-      },
-      request: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: "LandRequest"
+        ref: "User"
       },
       metadata: {},
       createdBy: {
@@ -23,8 +20,7 @@ const paymentSchema = mongoose
       updatedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
-      },
-      amount: { type: Number, required: true }
+      }
     },
     { timestamps: true }
   )
@@ -35,6 +31,6 @@ const paymentSchema = mongoose
       delete ret.__v;
     }
   });
-const Payment = mongoose.model("Payment", paymentSchema);
+const Notification = mongoose.model("Notification", notificationSchema);
 
-module.exports = { Payment };
+module.exports = { Notification };

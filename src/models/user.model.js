@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const Token = require("./token");
+const Token = require("./token.model");
 
 const UserRole = {
   Landowner: "Landowner",

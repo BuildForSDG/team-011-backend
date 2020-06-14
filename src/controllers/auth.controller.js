@@ -2,7 +2,7 @@
 const httpStatus = require("http-status-codes");
 
 const { User } = require("../models/user.model");
-const Token = require("../models/token");
+const Token = require("../models/token.model");
 const { sendEmail } = require("../utils/index");
 
 async function sendVerificationEmail(user, referer, prevToken) {
@@ -76,7 +76,7 @@ exports.login = async (req, res) => {
         .status(httpStatus.UNAUTHORIZED)
         .json({ type: "not-verified", message: "Your account has not been verified." });
     }
-    // Login successful, write token, and send back usergenerateJWT
+    // Login successful, write token, and send back user generated JWT
     const { accessToken } = user.generateJWT();
     return res.status(httpStatus.OK).json({ accessToken, id: user.id });
   } catch (error) {

@@ -1,7 +1,7 @@
 const httpStatus = require("http-status-codes");
 const request = require("supertest");
 const app = require("../src/app");
-const Token = require("../src/models/token");
+const Token = require("../src/models/token.model");
 const util = require("../src/utils/index");
 
 // mock utility functions
