@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 const { LandRequest } = require("../models/landrequest.model");
-const { Payment } = require("../models/payment.model");
 
 module.exports = {
   onConnect: (socket) => {
@@ -9,8 +8,5 @@ module.exports = {
     LandRequest.watch().on("change", (data) => {
       socket.emit("request-notification", data);
     });
-    // Payment.watch().on("change", (data) => {
-    //   socket.emit("payment-notification", data);
-    // });
   }
 };

@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
 const mongoose = require("mongoose");
+
 const paymentSchema = mongoose
   .Schema(
     {
