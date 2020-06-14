@@ -5,12 +5,14 @@ const { LandRequest } = require("../models/landrequest.model");
 const { Land, LandStatus } = require("../models/land.model");
 
 const { Payment } = require("../models/payment.model");
+const { Notification } = require("../models/notification.model");
 
 // eslint-disable-next-line complexity
 exports.makePayment = async (req, res) => {
   try {
     const { requestId, metadata } = req.body;
-    const landReq = await LandRequest.findOne({ _id: requestId });
+    const landReq = await LandRequest.findOne({ _id: requestId }).populate("createdBy", "firstName");
+
     if (!landReq) {
       return res.status(httpStatus.NOT_FOUND).json({ message: `Land request with ID ${requestId} not found` });
     }
@@ -35,7 +37,18 @@ exports.makePayment = async (req, res) => {
       metadata
     });
     await payment.save();
-
+    const notification = new Notification({
+      to: land.createdBy,
+      title: "land-payment-completed",
+      metadata: {
+        message: `${landReq.createdBy.firstName} made payment`,
+        at: payment.createdAt
+      },
+      createdBy: req.user.id
+    });
+    await notification.save();
+    const { io } = req.app;
+    if (io) io.emit("notification", notification);
     return res.status(httpStatus.CREATED).json(payment);
   } catch (error) {
     console.error(error);

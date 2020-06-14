@@ -35,6 +35,7 @@ const landRequestSchema = mongoose
     }
   });
 const LandRequest = mongoose.model("LandRequest", landRequestSchema);
+
 module.exports = {
   LandRequest,
   schema: landRequestSchema,
