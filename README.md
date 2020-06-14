@@ -16,7 +16,7 @@ The solution is necessary because many people who wish to farm do not have infor
 
 ## Usage
 
-The solution consist majorly of for steps
+The solution consist majorly of four steps
 
 ### 1. Farmlands
 
