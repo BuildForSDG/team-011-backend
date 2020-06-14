@@ -14,7 +14,7 @@ async function sendVerificationEmail(user, referer, prevToken) {
   }
   // Save the verification token
 
-  const subject = "Farmlord Account Verification Token";
+  const subject = "Farmlord Account Verification";
   const to = user.email;
   const link = `${referer}?token=${token}`;
   const html = `<p>Hi ${user.firstName}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>

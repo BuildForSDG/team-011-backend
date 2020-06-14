@@ -23,7 +23,7 @@ function uploadImgAndReturnUrl(file) {
 
 function sendEmail(recipient, message, attachment) {
   const data = {
-    from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+    from: process.env.FROM_NAME,
     to: recipient,
     subject: message.subject,
     text: message.text,
