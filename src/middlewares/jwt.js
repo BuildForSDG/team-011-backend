@@ -13,7 +13,7 @@ module.exports = (passport) => {
     new JwtStrategy(opts, (jwtPayload, done) => {
       User.findById(jwtPayload.userId)
         .then((user) => {
-          if (user) return done(null, user);
+          if (user) { return done(null, user); }
           return done(null, false);
         })
         .catch((err) => done(err, false, { message: "Server Error" }));

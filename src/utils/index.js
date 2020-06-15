@@ -15,7 +15,7 @@ function uploadImgAndReturnUrl(file) {
     const image = dUri.format(path.extname(file.originalname).toString(), file.buffer);
 
     cloudinary.uploader.upload(image.content, (err, url) => {
-      if (err) return reject(err);
+      if (err) { return reject(err); }
       return resolve(url);
     });
   });

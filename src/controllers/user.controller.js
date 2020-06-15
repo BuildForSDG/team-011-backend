@@ -171,7 +171,7 @@ exports.show = async (req, res) => {
 
     const user = await User.findById(id);
 
-    if (!user) return res.status(httpStatus.UNAUTHORIZED).json({ message: "User does not exist" });
+    if (!user) { return res.status(httpStatus.UNAUTHORIZED).json({ message: "User does not exist" }); }
 
     delete user.password;
 
@@ -192,12 +192,12 @@ exports.update = async (req, res) => {
     if (req.file) {
       const photo = await uploadImgAndReturnUrl(req.file);
       update.profileImage = photo.secure_url;
-    } else delete update.profileImage;
+    } else { delete update.profileImage; }
 
     const { id } = req.user;
     const opt = { new: true, useFindAndModify: true };
     const user = await User.findByIdAndUpdate({ _id: id }, { $set: update }, opt);
-    user.password = undefined;
+    delete user.password;
 
     return res.status(httpStatus.OK).json({ ...user.toJSON() });
   } catch (error) {

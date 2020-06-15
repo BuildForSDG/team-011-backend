@@ -16,6 +16,7 @@ exports.makePayment = async (req, res) => {
     if (!landReq) {
       return res.status(httpStatus.NOT_FOUND).json({ message: `Land request with ID ${requestId} not found` });
     }
+
     const land = await Land.findOne({ _id: landReq.landId });
     if (!land) {
       return res.status(httpStatus.NOT_FOUND).json({ message: `Land with ID ${landReq.landId} not found` });
@@ -48,7 +49,8 @@ exports.makePayment = async (req, res) => {
     });
     await notification.save();
     const { io } = req.app;
-    if (io) io.emit("notification", notification);
+    if (io) { io.emit("notification", notification); }
+
     return res.status(httpStatus.CREATED).json(payment);
   } catch (error) {
     console.error(error);

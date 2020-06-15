@@ -73,6 +73,7 @@
     "mongodb-memory-server": "^6.5.2",
     "mongodb-memory-server-global": "^6.5.2",
     "nodemon": "^2.0.3",
+    "prettier-eslint": "^11.0.0",
     "supertest": "^4.0.2"
   },
   "browserslist": [
