@@ -3,8 +3,8 @@ const user = require("./user.route");
 const land = require("./land.route");
 const landrequest = require("./landrequest.route");
 const paymentRoute = require("./payment.route");
-// const genericHandler = require("../middlewares/route-handler");
 const authenticate = require("../middlewares/authenticate");
+const { NotificationRoutes } = require("./notification.route");
 
 module.exports = (app) => {
   app.get("/", (req, res) => {
@@ -21,4 +21,5 @@ module.exports = (app) => {
 
   app.use("/api/land_requests", authenticate, landrequest);
   app.use("/api/payments", authenticate, paymentRoute);
+  app.use("/api/notifications", authenticate, NotificationRoutes);
 };

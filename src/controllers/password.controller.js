@@ -77,8 +77,8 @@ exports.resetPassword = async (req, res) => {
     }
     // Set the new password
     user.password = req.body.password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
+    delete user.resetPasswordToken;
+    delete user.resetPasswordExpires;
     user.isVerified = true;
 
     // Save the updated user object
@@ -89,7 +89,7 @@ exports.resetPassword = async (req, res) => {
     const html = `<p>Hi ${user.firstName}</p>
                     <p>This is a confirmation that the password for your account ${user.email} has just been changed.</p>`;
 
-    await sendEmail(to, { subject, html }, "");
+    sendEmail(to, { subject, html }, "");
 
     return res.status(httpStatus.OK).json({ message: "Your password has been updated." });
   } catch (error) {

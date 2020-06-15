@@ -15,7 +15,7 @@ function uploadImgAndReturnUrl(file) {
     const image = dUri.format(path.extname(file.originalname).toString(), file.buffer);
 
     cloudinary.uploader.upload(image.content, (err, url) => {
-      if (err) return reject(err);
+      if (err) { return reject(err); }
       return resolve(url);
     });
   });
@@ -23,7 +23,7 @@ function uploadImgAndReturnUrl(file) {
 
 function sendEmail(recipient, message, attachment) {
   const data = {
-    from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+    from: process.env.FROM_NAME,
     to: recipient,
     subject: message.subject,
     text: message.text,

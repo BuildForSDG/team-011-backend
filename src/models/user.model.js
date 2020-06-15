@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const Token = require("./token");
+const Token = require("./token.model");
 
 const UserRole = {
   Landowner: "Landowner",
@@ -110,13 +110,13 @@ const UserSchema = new mongoose.Schema(
 UserSchema.pre("save", function (next) {
   const user = this;
 
-  if (!user.isModified("password")) return next();
+  if (!user.isModified("password")) { return next(); }
 
   return bcrypt.genSalt(10, (err, salt) => {
-    if (err) return next(err);
+    if (err) { return next(err); }
 
     return bcrypt.hash(user.password, salt, (error, hash) => {
-      if (error) return next(err);
+      if (error) { return next(err); }
 
       user.password = hash;
       return next();

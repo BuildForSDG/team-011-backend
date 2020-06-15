@@ -2,7 +2,7 @@
 const httpStatus = require("http-status-codes");
 
 const { User } = require("../models/user.model");
-const Token = require("../models/token");
+const Token = require("../models/token.model");
 const { sendEmail } = require("../utils/index");
 
 async function sendVerificationEmail(user, referer, prevToken) {
@@ -14,12 +14,12 @@ async function sendVerificationEmail(user, referer, prevToken) {
   }
   // Save the verification token
 
-  const subject = "Farmlord Account Verification Token";
+  const subject = "Farmlord Account Verification";
   const to = user.email;
   const link = `${referer}?token=${token}`;
   const html = `<p>Hi ${user.firstName}<p><br><p>Please click on the following <a href='${link}'>link</a> to verify your account.</p>
                   <br><p>If you did not request this, please ignore this email.</p>`;
-  if (process.env.NODE_ENV !== "production") console.log(link);
+  if (process.env.NODE_ENV !== "production") { console.log(link); }
   sendEmail(to, { subject, html }, "");
 }
 
@@ -76,7 +76,7 @@ exports.login = async (req, res) => {
         .status(httpStatus.UNAUTHORIZED)
         .json({ type: "not-verified", message: "Your account has not been verified." });
     }
-    // Login successful, write token, and send back usergenerateJWT
+    // Login successful, write token, and send back user generated JWT
     const { accessToken } = user.generateJWT();
     return res.status(httpStatus.OK).json({ accessToken, id: user.id });
   } catch (error) {

@@ -41,8 +41,11 @@ exports.modifyLandDetail = async (req, res) => {
   try {
     const photo = req.file && (await uploadImgAndReturnUrl(req.file));
     const update = req.body;
-    if (req.file) update.photo = photo.secure_url;
-    else delete update.photo;
+    if (req.file) {
+      update.photo = photo.secure_url;
+    } else {
+      delete update.photo;
+    }
 
     const { landId } = req.params;
     const land = await Land.findOneAndUpdate(

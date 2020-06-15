@@ -4,11 +4,12 @@
 const httpStatus = require("http-status-codes");
 const { LandRequest } = require("../models/landrequest.model");
 const { Land, LandStatus } = require("../models/land.model");
+const { Notification } = require("../models/notification.model");
 
 /**
  *CREATE A NEW LAND TOO BE LEASED OUT OR RENTED OUT
  *@route POST api/land
- *@desc Add a New Land Properety to be bidded for or sold to farmers
+ *@desc Add a New Land Property to be bidden for or sold to farmers
  *@access Private
  */
 // eslint-disable-next-line complexity
@@ -17,16 +18,16 @@ exports.createLandRequest = async (req, res) => {
     const { landId } = req.body;
 
     const land = await Land.findOne({ _id: landId });
-    if (!land) return res.status(httpStatus.NOT_FOUND).json({ message: "Land your making request to does not exist" });
+    if (!land) { return res.status(httpStatus.NOT_FOUND).json({ message: "Land your making request to does not exist" }); }
     const request = await LandRequest.findOne({ landId, createdBy: req.user.id });
-    if (request) return res.status(httpStatus.CONFLICT).json({ message: "Request already received" });
+    if (request) { return res.status(httpStatus.CONFLICT).json({ message: "Request already received" }); }
     const landRequest = new LandRequest({
       createdBy: req.user.id,
       landownerId: land.createdBy,
       landId
     });
     const savedRequest = await landRequest.save();
-    if (land.requests.indexOf(savedRequest.id) < 0) land.requests.push(savedRequest.id);
+    if (land.requests.indexOf(savedRequest.id) < 0) { land.requests.push(savedRequest.id); }
     await land.save();
     const { _id, createdBy } = savedRequest;
     return res.status(httpStatus.CREATED).json({ id: _id, createdBy });
@@ -68,18 +69,33 @@ exports.modifyLandRequest = async (req, res) => {
   try {
     const update = req.body;
     const { request_id } = req.params;
-    console.log(req.body, req.params);
+
     const landRequest = await LandRequest.findOneAndUpdate(
       { _id: request_id },
       { $set: { ...update, updatedBy: req.user.id } },
       { new: true, useFindAndModify: false }
-    ).populate("landId", "price shortLocation status");
+    )
+      .populate("landId", "price shortLocation status")
+      .populate("landownerId", "firstName");
     const land = await Land.findOneAndUpdate(
       { _id: landRequest.landId },
       { $set: { status: LandStatus.PENDING_PAYMENT } },
       { new: true, useFindAndModify: false }
     );
     landRequest.landId.status = land.status;
+
+    const notification = new Notification({
+      to: landRequest.createdBy,
+      title: "land-request-approved",
+      metadata: {
+        message: `${landRequest.landownerId.firstName} approved your request`,
+        at: landRequest.updatedAt
+      },
+      createdBy: req.user.id
+    });
+    await notification.save();
+    const { io } = req.app;
+    if (io) { io.emit("notification", notification); }
     return res.status(httpStatus.OK).json({ ...landRequest.toJSON() });
   } catch (error) {
     console.error(error);
@@ -163,7 +179,6 @@ exports.getLandLandRequests = async (req, res) => {
 exports.getAllLandownerLandRequests = async (req, res) => {
   try {
     const { query, opts } = req.query;
-    console.log("getAllLandownerLandRequests", req.query);
     const { id: landownerId } = req.user;
     const condition = { ...JSON.parse(query || "{}"), landownerId };
     const options = JSON.parse(opts || "{}");
@@ -193,7 +208,6 @@ exports.getAllLandownerLandRequests = async (req, res) => {
 exports.getAllFarmerLandRequests = async (req, res) => {
   try {
     const { query, opts } = req.query;
-    console.log("getAllFarmerLandRequests", req.query);
     const condition = {
       ...JSON.parse(query || "{}"),
       createdBy: req.user.id
