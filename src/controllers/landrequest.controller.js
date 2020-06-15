@@ -18,16 +18,16 @@ exports.createLandRequest = async (req, res) => {
     const { landId } = req.body;
 
     const land = await Land.findOne({ _id: landId });
-    if (!land) return res.status(httpStatus.NOT_FOUND).json({ message: "Land your making request to does not exist" });
+    if (!land) { return res.status(httpStatus.NOT_FOUND).json({ message: "Land your making request to does not exist" }); }
     const request = await LandRequest.findOne({ landId, createdBy: req.user.id });
-    if (request) return res.status(httpStatus.CONFLICT).json({ message: "Request already received" });
+    if (request) { return res.status(httpStatus.CONFLICT).json({ message: "Request already received" }); }
     const landRequest = new LandRequest({
       createdBy: req.user.id,
       landownerId: land.createdBy,
       landId
     });
     const savedRequest = await landRequest.save();
-    if (land.requests.indexOf(savedRequest.id) < 0) land.requests.push(savedRequest.id);
+    if (land.requests.indexOf(savedRequest.id) < 0) { land.requests.push(savedRequest.id); }
     await land.save();
     const { _id, createdBy } = savedRequest;
     return res.status(httpStatus.CREATED).json({ id: _id, createdBy });
@@ -95,7 +95,7 @@ exports.modifyLandRequest = async (req, res) => {
     });
     await notification.save();
     const { io } = req.app;
-    if (io) io.emit("notification", notification);
+    if (io) { io.emit("notification", notification); }
     return res.status(httpStatus.OK).json({ ...landRequest.toJSON() });
   } catch (error) {
     console.error(error);

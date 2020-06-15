@@ -8,7 +8,7 @@ module.exports = ({ userIdParam, allowedRoles }) => (req, res, next) => {
     if (userIdParam && req.params[`${userIdParam}`] !== req.user.id) {
       return res.status(httpStatus.FORBIDDEN).json({ message: "Access denied" });
     }
-    if (!allowedRoles) return next();
+    if (!allowedRoles) { return next(); }
     const foundRole = allowedRoles.find((v) => v === role);
     return foundRole ? next() : res.status(httpStatus.FORBIDDEN).json({ message: "Access denied" });
   } catch (error) {
