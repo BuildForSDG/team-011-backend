@@ -52,7 +52,7 @@ describe("Land Controller", () => {
         .expect(httpStatus.FORBIDDEN);
     });
     it(`should return ${httpStatus.CREATED} if user is a Landowner and uploads photo`, async () => {
-      const file = await fs.readFile(`${__dirname}/../docs/use-case.jpg`);
+      const file = await fs.readFile("docs/use-case.jpg");
 
       // Login as Landowner
       const landownerEmail = "landowner@gmail.com";
@@ -86,8 +86,7 @@ describe("Land Controller", () => {
       newLand.createdBy = createdBy;
     });
     it(`should return ${httpStatus.BAD_REQUEST} if a Landowner uploads non-image file`, async () => {
-      const filePath = `${__dirname}/../README.md`;
-      const file = await fs.readFile(filePath);
+      const file = await fs.readFile("README.md");
 
       await request(app)
         .post("/api/lands")
